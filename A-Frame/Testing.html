@@ -1,0 +1,510 @@
+<html>
+    <head>
+        <title>Testing for self-localization</title>
+        <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    </head>
+
+    <body>
+        <a-scene id="scene">
+            <!-- devices where position is known-->
+
+            <!-- device of user with position (0,0,0)-->
+            <a-sphere id="device__0"  
+                      color="red"
+                      radius="0.1"
+                      position="0 0 0"></a-sphere>
+            
+            <a-sphere id="device__1"  
+                      color="blue"
+                      radius="0.1"></a-sphere>
+
+            <a-sphere id="device__2"  
+                      color="green"
+                      radius="0.1"></a-sphere>
+
+            <a-sphere id="device__5"  
+                      color="green"
+                      radius="0.1"></a-sphere>
+
+            <!-- device where position is unknown to the user and software-->
+            <a-sphere id="device__3"  
+                      color="yellow"
+                      radius="0.1"
+                      visible="true"></a-sphere>
+
+            <a-sphere id="device__4"  
+                      color="orange"
+                      radius="0.1"
+                      visible="true"></a-sphere>
+
+            <!-- distances between devices depicted as lines -->
+            <a-entity id="distances"></a-entity>
+
+            <!--coordinate system-->
+            <a-entity id="coordinate-system"></a-entity>
+
+        </a-scene>
+    </body>
+</html>
+
+<script>
+    //global variables
+    const distance = 25; //max distance of all devices from position 0
+    var numOfDevices = 6; //number of devices where position is known
+    const maxCoords = 100; //length of each axis multiplied by 2
+    var distancesToNextDevice_3 = [1,1,1,1,1] //currently hardcoded distances (later initialized randomly)
+    var distancesToNextDevice_4 = [1,1,1,1,1]
+
+    initCoordinateSystem();
+    changePosition(1);
+    changePosition(2);
+    changePosition(3);
+    changePosition(4);
+    changePosition(5);
+    arrangeDistances();
+    getDistances(3);
+    getDistances(4);
+    //createSphere();
+
+
+    //keyevents
+    document.addEventListener('keydown', event => {
+        if(event.key == "l"){
+            changePosition(1);
+            arrangeDistances();
+
+            var intersectionCircle_3 = sphereSphereIntersectionVers2(document.getElementById(`device__1`).getAttribute("position"),document.getElementById(`device__2`).getAttribute("position"), distancesToNextDevice_3[1], distancesToNextDevice_3[2], 3); 
+            var pointPair_3 = circleSphereIntersection(intersectionCircle_3, document.getElementById(`device__0`).getAttribute("position"), distancesToNextDevice_3[0], 3);
+
+            var intersectionCircle_4 = sphereSphereIntersectionVers2(document.getElementById(`device__0`).getAttribute("position"),document.getElementById(`device__1`).getAttribute("position"), distancesToNextDevice_4[0], distancesToNextDevice_4[1], 4); 
+            var pointPair_4 = circleSphereIntersection(intersectionCircle_4, document.getElementById(`device__2`).getAttribute("position"), distancesToNextDevice_4[2], 4);
+
+            console.log(intersectionCircle_3)
+            console.log(intersectionCircle_4)
+            console.log(document.getElementById(`device__3`).getAttribute("position"))
+            console.log(document.getElementById(`device__4`).getAttribute("position"))
+            console.log(determinePoints(pointPair_3,pointPair_4))
+            console.log("Determined Position for device__3:")
+            console.log(pointPairSphereIntersection(pointPair_3, distancesToNextDevice_3[5], document.getElementById(`device__5`).getAttribute("position")))
+            console.log("Verification:")
+            console.log(document.getElementById(`device__3`).getAttribute("position"))
+            //createSphere();
+            console.log("position of blue changed.");
+            createCircle(intersectionCircle_3)
+            //changePosition(3)
+        }
+        else if(event.key == "k"){
+            changePosition(2);
+            arrangeDistances();
+
+            var intersectionCircle_3 = sphereSphereIntersectionVers2(document.getElementById(`device__1`).getAttribute("position"),document.getElementById(`device__2`).getAttribute("position"), distancesToNextDevice_3[1], distancesToNextDevice_3[2], 3); 
+            var pointPair_3 = circleSphereIntersection(intersectionCircle_3, document.getElementById(`device__0`).getAttribute("position"), distancesToNextDevice_3[0], 3);
+
+            var intersectionCircle_4 = sphereSphereIntersectionVers2(document.getElementById(`device__1`).getAttribute("position"),document.getElementById(`device__2`).getAttribute("position"), distancesToNextDevice_4[1], distancesToNextDevice_4[2], 4); 
+            var pointPair_4 = circleSphereIntersection(intersectionCircle_4, document.getElementById(`device__0`).getAttribute("position"), distancesToNextDevice_4[0], 4);
+
+            console.log(document.getElementById(`device__3`).getAttribute("position"))
+            console.log(document.getElementById(`device__4`).getAttribute("position"))
+            console.log(determinePoints(pointPair_3,pointPair_4))
+            console.log("Determined Position for device__3:")
+            console.log(pointPairSphereIntersection(pointPair_3, distancesToNextDevice_3[5], document.getElementById(`device__5`).getAttribute("position")))
+            console.log("Verification:")
+            console.log(document.getElementById(`device__3`).getAttribute("position"))
+
+            //createSphere();
+            console.log("position of green changed.");
+            changePosition(3)
+        }
+    });
+
+    //Creates a line between each device
+    function arrangeDistances(){
+        var lineIncrement = 2;
+        var currentDevice;
+        for (var id = 0; id < numOfDevices; id++) {
+            currentDevice = document.getElementById(`device__${id}`).getAttribute("position");
+            for(var device = 0; device < numOfDevices; device++) {
+                if(device != id){
+                    document.getElementById("distances").setAttribute(`line__${lineIncrement}`, `start: ${currentDevice.x}
+                                                                                                        ${currentDevice.y}
+                                                                                                        ${currentDevice.z};
+                                                                                                 end: ${document.getElementById(`device__${device}`).getAttribute("position").x}
+                                                                                                        ${document.getElementById(`device__${device}`).getAttribute("position").y}
+                                                                                                        ${document.getElementById(`device__${device}`).getAttribute("position").z};`)
+                    lineIncrement++;
+            }
+            }
+        }
+    }
+
+    function initCoordinateSystem(){
+        var system = document.getElementById("coordinate-system");
+        //x-Axis
+        system.setAttribute("line", `start: -${maxCoords} 0 0; end: ${maxCoords} 0 0; color: white;`)
+        //y-Axis
+        system.setAttribute("line__1", `start: 0 -${maxCoords} 0; end: 0 ${maxCoords} 0; color: white;`)
+        //z-Axis
+        system.setAttribute("line__2", `start: 0 0 -${maxCoords}; end: 0 0 ${maxCoords}; color: white;`)
+    }
+
+    //this function creates a sphere around device__3 for each other device with radius set as distance from device__3 to that device
+    function createSphere(){
+        var posOfDeviceId;
+        var posOfUnkownDevice = document.getElementById("device__3").getAttribute("position");
+        for (var id = 0; id < numOfDevices; id++) {
+            posOfDeviceId = document.getElementById(`device__${id}`).getAttribute("position");
+            document.getElementById(`sphere__${id}`).setAttribute("radius",`${Math.sqrt(Math.pow(posOfUnkownDevice.x - posOfDeviceId.x, 2)
+                                                                              + Math.pow(posOfUnkownDevice.y - posOfDeviceId.y, 2)
+                                                                              + Math.pow(posOfUnkownDevice.z - posOfDeviceId.z, 2))}`);
+        }
+    }
+
+    function getRandomPosition(maxDistance){
+        var plusOrMinus = Math.random() < 0.5 ? -1 : 1;
+        return Math.random() * maxDistance * plusOrMinus;
+    }
+
+    function changePosition(deviceId){
+        document.getElementById(`device__${deviceId}`).setAttribute("position", getRandomPosition(distance) + " " + getRandomPosition(distance) + " " + getRandomPosition(distance));
+        //Change distances accordingly, currently hardcoded for device__3
+        getDistances(3);
+        getDistances(4);
+    }
+   
+    function getDistances(newDeviceId){
+            var posOfNewDevice = document.getElementById(`device__${newDeviceId}`).getAttribute("position");
+            if(newDeviceId == 3){
+                for(var i = 0; i < numOfDevices; i++) {
+                    if(i != newDeviceId){
+                        distancesToNextDevice_3[i] = Math.sqrt(Math.pow(posOfNewDevice.x - document.getElementById(`device__${i}`).getAttribute("position").x, 2) 
+                                                        + Math.pow(posOfNewDevice.y - document.getElementById(`device__${i}`).getAttribute("position").y, 2) 
+                                                        + Math.pow(posOfNewDevice.z - document.getElementById(`device__${i}`).getAttribute("position").z, 2));
+                    }else{
+                        distancesToNextDevice_3[i] = 0;
+                    }
+                }
+            }else{
+                for(var i = 0; i < numOfDevices; i++) {
+                    if(i != newDeviceId){
+                        distancesToNextDevice_4[i] = Math.sqrt(Math.pow(posOfNewDevice.x - document.getElementById(`device__${i}`).getAttribute("position").x, 2) 
+                                                        + Math.pow(posOfNewDevice.y - document.getElementById(`device__${i}`).getAttribute("position").y, 2) 
+                                                        + Math.pow(posOfNewDevice.z - document.getElementById(`device__${i}`).getAttribute("position").z, 2));
+                    }else{
+                        distancesToNextDevice_4[i] = 0;
+                    }
+                }
+            }
+        }
+
+    //functions for detetection of device position
+    function getIntersectionOfSpheres(sphereId_1, sphereId_2){
+        var pos1 = document.getElementById(`device__${sphereId_1}`).getAttribute("position");
+        var pos2 = document.getElementById(`device__${sphereId_2}`).getAttribute("position");
+
+        console.log("Begin Intersection Calculation")
+        console.log(pos1)
+        console.log(pos2)
+        console.log(distancesToNextDevice)
+
+        var vectorPos1Pos2 = {
+            x: pos2.x - pos1.x,
+            y: pos2.y - pos1.y,
+            z: pos2.z - pos1.z
+        }
+
+        var lengthVectorPos1Pos2 = Math.sqrt(Math.pow(vectorPos1Pos2.x,2) + Math.pow(vectorPos1Pos2.y,2) + Math.pow(vectorPos1Pos2.z,2));
+
+        if(lengthVectorPos1Pos2 >= distancesToNextDevice[sphereId_1] && lengthVectorPos1Pos2 >= distancesToNextDevice[sphereId_2]){
+            console.log("Calculation initiated.")
+            var multiplierPos1ToPos2 = distancesToNextDevice[sphereId_1]/(lengthVectorPos1Pos2);
+            var multiplierPos2ToPos1 = -distancesToNextDevice[sphereId_2]/(lengthVectorPos1Pos2);
+            console.log(multiplierPos2ToPos1)
+            console.log(multiplierPos1ToPos2)
+
+            var posEdgeSphere1 = {
+                x: pos1.x + (vectorPos1Pos2.x * multiplierPos1ToPos2),
+                y: pos1.y + (vectorPos1Pos2.y * multiplierPos1ToPos2),
+                z: pos1.z + (vectorPos1Pos2.z * multiplierPos1ToPos2)
+            }
+            console.log(posEdgeSphere1)
+            var posEdgeSphere2 = {
+                x: pos2.x + (vectorPos1Pos2.x * multiplierPos2ToPos1),
+                y: pos2.y + (vectorPos1Pos2.y * multiplierPos2ToPos1),
+                z: pos2.z + (vectorPos1Pos2.z * multiplierPos2ToPos1)
+            }
+            console.log(posEdgeSphere2)
+            var vectorEdges = {
+                x: posEdgeSphere2.x - posEdgeSphere1.x,
+                y: posEdgeSphere2.y - posEdgeSphere1.y,
+                z: posEdgeSphere2.z - posEdgeSphere1.z
+            }
+            console.log(vectorEdges)
+            var lengthVectorEdges = Math.sqrt(Math.pow(vectorEdges.x,2) + Math.pow(vectorEdges.y,2) + Math.pow(vectorEdges.z,2));
+            console.log(lengthVectorEdges)
+            var centerPos = {
+                x: posEdgeSphere1.x + (vectorEdges.x/2),
+                y: posEdgeSphere1.y + (vectorEdges.y/2),
+                z: posEdgeSphere1.z + (vectorEdges.z/2)
+            }
+            console.log(centerPos)
+            var centerPoint = document.createElement("a-sphere");
+            centerPoint.setAttribute("position", `${centerPos.x} ${centerPos.y} ${centerPos.z}`);
+            centerPoint.setAttribute("radius", "0.1");
+
+            var precalculatedRadiusOfCircle = Math.pow(distancesToNextDevice[sphereId_1],2) - Math.pow(Math.sqrt(Math.pow(centerPos.x-pos1.x,2) + Math.pow(centerPos.y-pos1.y,2) + Math.pow(centerPos.z-pos1.z,2)),2);
+            
+            if(precalculatedRadiusOfCircle < 0){
+                precalculatedRadiusOfCircle *= -1;
+            }
+            var radiusOfCircle = Math.sqrt(precalculatedRadiusOfCircle);
+
+            console.log(radiusOfCircle);
+            console.log(Math.sqrt(Math.pow(centerPos.x - document.getElementById(`device__3`).getAttribute("position").x,2) 
+                                                   + Math.pow(centerPos.y - document.getElementById(`device__3`).getAttribute("position").y,2) 
+                                                   + Math.pow(centerPos.z - document.getElementById(`device__3`).getAttribute("position").z,2)))
+                
+            var circle = document.createElement("a-ring");
+            circle.setAttribute("position", `${centerPos.x} ${centerPos.y} ${centerPos.z}`);
+            circle.setAttribute("scale", `${radiusOfCircle} ${radiusOfCircle} ${radiusOfCircle}`);
+            circle.setAttribute("side", "double");
+
+            document.getElementById("scene").appendChild(circle);
+            document.getElementById("scene").appendChild(centerPoint);
+        }
+    }
+
+        //Device-Positioning functions
+
+        //Sphere-Sphere Intersection https://mathworld.wolfram.com/Sphere-SphereIntersection.html
+        function sphereSphereIntersectionVers1(posA, posB, disA, disB, deviceId){
+            //calculate d for a point in following form: (d, 0 ,0)
+            var distanceAB = calculateDistance(posA, posB);
+
+            //calculate radius of intersection-circle
+            var radius = (1/(2*distanceAB))*Math.sqrt((-distanceAB + disA - disB) * (-distanceAB - disA + disB) * (-distanceAB + disA + disB) * (distanceAB + disA + disB));
+
+            if(disB > distanceAB && disA <= distanceAB){
+                var lengthFromPos = Math.sqrt(Math.pow(disB, 2) - Math.pow(radius, 2));
+                var circleCenter = calculateNewPosition(posB, calculateMultipliedVector(calculateNormalizedVector(posB, posA, distanceAB),lengthFromPos));
+            }else if(disA > distanceAB && disB <= distanceAB){
+                var lengthFromPos = Math.sqrt(Math.pow(disA, 2) - Math.pow(radius, 2));
+                var circleCenter = calculateNewPosition(posA, calculateMultipliedVector(calculateNormalizedVector(posA, posB, distanceAB),lengthFromPos));
+            }else{
+                var lengthFromPos = Math.sqrt(Math.pow(disA, 2) - Math.pow(radius, 2));
+                var circleCenter = calculateNewPosition(posA, calculateMultipliedVector(calculateNormalizedVector(posA, posB, distanceAB),lengthFromPos));
+            }
+
+            return {
+                radius: radius,
+                circleCenter: circleCenter,
+                verification: calculateDistance(document.getElementById(`device__${deviceId}`).getAttribute("position"), circleCenter)
+            }
+        }
+
+        //Sphere-Sphere Intersection https://gamedev.stackexchange.com/questions/75756/sphere-sphere-intersection-and-circle-sphere-intersection
+        function sphereSphereIntersectionVers2(posA, posB, disA, disB, deviceId){
+
+            var d = calculateDistance(posA, posB);
+            var h = 1/2 + (disA * disA - disB * disB)/(2 * d*d);
+            var c_i = calculateNewPosition(posA, calculateMultipliedVector(calculateVector(posA, posB), h));
+            var r_i = Math.sqrt(disA*disA - h*h*d*d);
+            var n_i = calculateNormalizedVector(posA, posB, d);
+
+            return {
+                radius: r_i,
+                circleCenter: c_i,
+                normalOfPlane: n_i,
+                verification: calculateDistance(document.getElementById(`device__${deviceId}`).getAttribute("position"), c_i) //debug purposes
+            }
+
+        }
+
+        //Circle-Sphere Intersection https://gamedev.stackexchange.com/questions/75756/sphere-sphere-intersection-and-circle-sphere-intersection
+        function circleSphereIntersection(circle, posA, disA, deviceId){
+
+            var d = dot(circle.normalOfPlane, calculateVector(posA, circle.circleCenter));
+            var c_p = calculateNewPosition(posA, calculateMultipliedVector(circle.normalOfPlane, d));
+
+            if(d == circle.radius) {
+                return {
+                    point_1: c_p,
+                    point_2: null
+                }
+            }
+
+            var r_p = Math.sqrt(disA*disA - d*d);
+            var t = normalize(cross(calculateVector(circle.circleCenter, c_p), circle.normalOfPlane))
+
+            d = calculateDistance(circle.circleCenter, c_p)
+            var h = 1/2 + (circle.radius * circle.radius - r_p * r_p)/(2 * d*d);
+            var c_i = calculateNewPosition(circle.circleCenter, calculateMultipliedVector(calculateVector(circle.circleCenter, c_p), h));
+            var r_i = Math.sqrt(circle.radius*circle.radius - h*h*d*d);
+
+            return {
+                point_1: calculateNewPosition(c_i, calculateMultipliedVector(t, -r_i)),
+                point_2: calculateNewPosition(c_i, calculateMultipliedVector(t, r_i)),
+                distanceToCenter: r_i,
+                verification: calculateDistance(document.getElementById(`device__${deviceId}`).getAttribute("position"), c_i) //debug purposes
+            }
+        }
+
+        //Intersection of a point pair and a sphere
+        function pointPairSphereIntersection(pointPair, sphereRadius, sphereCenterPoint){
+            return Math.abs(calculateDistance(pointPair.point_1, sphereCenterPoint) - sphereRadius) >= Math.abs(calculateDistance(pointPair.point_2, sphereCenterPoint) - sphereRadius) ? pointPair.point_2 : pointPair.point_1;
+        }
+
+        //This function determines the exact positions of two unkown devices
+        function determinePoints(pointSet_1, pointSet_2){
+            
+            console.log(pointSet_1);
+            console.log(pointSet_2);
+
+            var p1p1 = calculateDistance(pointSet_1.point_1, pointSet_2.point_1);
+            var p1p2 = calculateDistance(pointSet_1.point_1, pointSet_2.point_2);
+            var p2p1 = calculateDistance(pointSet_1.point_2, pointSet_2.point_1);
+            var p2p2 = calculateDistance(pointSet_1.point_2, pointSet_2.point_2);
+
+            console.log(p1p1);
+            console.log(p1p2);
+            console.log(p2p1);
+            console.log(p2p2);
+
+
+            if(p1p1 === p2p2 && p1p2 === p2p1){
+                return "No exact position can be determined"
+            }else if(distancesToNextDevice_3[4]*(0.99999) <= p1p1 <=distancesToNextDevice_3[4]*(1.00001)){
+                console.log("p1p1");
+                return {
+                    point_1: pointSet_1.point_1,
+                    point_2: pointSet_2.point_1
+                }
+            }else if(distancesToNextDevice_3[4]*(0.99999) <= p1p2 <=distancesToNextDevice_3[4]*(1.00001)){
+                console.log("p1p2");
+                return {
+                    point_1: pointSet_1.point_1,
+                    point_2: pointSet_2.point_2
+                }
+            }else if(distancesToNextDevice_3[4]*(0.99999) <= p2p1 <=distancesToNextDevice_3[4]*(1.00001)){
+                console.log("p2p1");
+                return {
+                    point_1: pointSet_1.point_2,
+                    point_2: pointSet_2.point_1
+                }
+            }else{
+                console.log("p2p2");
+                return {
+                    point_1: pointSet_1.point_2,
+                    point_2: pointSet_2.point_2
+                }
+            }
+
+        }
+    
+        //Helperfunctions
+
+        //this function calculates the distance between to points in a three dimensional plane
+        function calculateDistance(posA, posB){
+            return Math.sqrt(Math.pow(posA.x - posB.x, 2) + Math.pow(posA.y - posB.y, 2) + Math.pow(posA.z - posB.z, 2));
+        }
+
+        //this function calculates the normalized vector between to points
+        function calculateNormalizedVector(posA, posB, length){
+            if(length != 0){
+                return {
+                    x: (posB.x - posA.x)/length,
+                    y: (posB.y - posA.y)/length,
+                    z: (posB.z - posA.z)/length
+                }
+            }else {
+                return null;
+            }
+        }
+
+        function calculateVector(posA, posB){
+            return {
+                    x: posB.x - posA.x,
+                    y: posB.y - posA.y,
+                    z: posB.z - posA.z
+            }
+        }
+
+        //this functions calculates a multiple of a given vector
+        function calculateMultipliedVector(vector, multiplier){
+            return {
+                x: vector.x * multiplier,
+                y: vector.y * multiplier,
+                z: vector.z * multiplier
+            }
+        }
+
+        //this functions calculates a new position with a given position and vector
+        function calculateNewPosition(oldPos, vector){
+            return {
+                x: oldPos.x + vector.x,
+                y: oldPos.y + vector.y,
+                z: oldPos.z + vector.z,
+            }
+        }
+
+        //scalar product
+        function dot(vector_1, vector_2){
+            return (vector_1.x * vector_2.x) + (vector_1.y * vector_2.y) + (vector_1.z * vector_2.z)
+        }
+
+        //cross product
+        function cross(vector_1, vector_2){
+            return {
+                x: vector_1.y * vector_2.z - vector_1.z * vector_2.y,
+                y: vector_1.z * vector_2.x - vector_1.x * vector_2.z,
+                z: vector_1.x * vector_2.y - vector_1.y * vector_2.x
+            }
+        }
+
+        //this function normalizes a vector
+        function normalize(vector){
+            var length = Math.sqrt(vector.x * vector.x + vector.y * vector.y + vector.z * vector.z);
+            return {
+                x: vector.x / length,
+                y: vector.y / length,
+                z: vector.z / length
+            }
+        }
+
+        //this function calculates the length of a vector
+        function magnitude(vector) {
+            return Math.sqrt(vector.x * vector.x + vector.y * vector.y + vector.z * vector.z);
+        }
+
+        //Functions for creating 3d models
+
+
+        function createCircle(circle){
+            var centerPoint = document.createElement("a-sphere");
+            centerPoint.setAttribute("position", `${circle.circleCenter.x} ${circle.circleCenter.y} ${circle.circleCenter.z}`);
+            centerPoint.setAttribute("radius", "0.1");
+                
+            var circleToDraw = document.createElement("a-ring");
+            circleToDraw.setAttribute("position", `${circle.circleCenter.x} ${circle.circleCenter.y} ${circle.circleCenter.z}`);
+            circleToDraw.setAttribute("scale", `${circle.radius} ${circle.radius} ${circle.radius}`);
+            circleToDraw.setAttribute("side", "double");
+
+            var vector = calculateVector(document.getElementById(`device__1`).getAttribute("position"),document.getElementById(`device__2`).getAttribute("position"))
+
+            console.log("adwadawd")
+            console.log(normalize(vector))
+            //for determining angles for the rotation of the circle
+            var angleX = Math.acos(normalize(vector).x);
+            var angleY = Math.acos(normalize(vector).y);
+            var angleZ = Math.acos(normalize(vector).z);
+
+            console.log(`${angleX * 180 / Math.PI} ${angleY * 180 / Math.PI} ${angleZ * 180 / Math.PI}`)
+            circleToDraw.setAttribute("rotation", `${angleX * 180 / Math.PI} ${angleY * 180 / Math.PI} ${angleZ * 180 / Math.PI}`);
+
+            circleToDraw.setAttribute("width", "1");
+            document.getElementById("scene").appendChild(circleToDraw);
+            document.getElementById("scene").appendChild(centerPoint);
+        }
+
+
+
+    </script>

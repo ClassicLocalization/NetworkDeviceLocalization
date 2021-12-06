@@ -1,0 +1,19 @@
+https://github.com/espressif/esp-csi
+
+GPS Daten angucken *
+
+A-Frame angucken * https://mathworld.wolfram.com/Sphere-SphereIntersection.html
+
+Expressif Wlan connection
+
+ZeroMQ für eigene Protokolldefinition
+
+C++, C, Python, Lua
+
+ESP lesen und einarbeiten -
+
+Jteq
+
+Github-Repo
+
+Exist
