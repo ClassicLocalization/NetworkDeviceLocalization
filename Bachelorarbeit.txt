@@ -17,3 +17,17 @@ Jteq
 Github-Repo
 
 Exist
+
+ZermoMQ <- primärer Fokus
+
+Ring Visualisierung fester Daten (nicht floating point numbers)
+
+
+Quaternionen, Gimbal Lock, Three.js, ARP Tables in Javascript
+
+
+https://stackguides.com/questions/26699369/zeromq-sockets-design
+
+Discovering services with ZeroMQ (MDMS etc.)
+
+bindmode auf 000

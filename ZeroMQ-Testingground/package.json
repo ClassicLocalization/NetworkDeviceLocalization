@@ -1,0 +1,17 @@
+{
+  "name": "zeromq-testingground",
+  "version": "1.0.0",
+  "description": "",
+  "main": "Server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "node": "^17.2.0",
+    "zeromq": "^5.2.8"
+  }
+}
