@@ -31,3 +31,7 @@ https://stackguides.com/questions/26699369/zeromq-sockets-design
 Discovering services with ZeroMQ (MDMS etc.)
 
 bindmode auf 000
+
+Isomaps (wireless sensor network)
+
+https://www.jabref.org/ Reference Manager for BA
