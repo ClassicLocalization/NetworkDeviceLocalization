@@ -7,7 +7,6 @@ def close(s):
     print("closed")
 
 PORT = 50000
-MAGIC = "fna349fn" #to make sure we don't confuse or get confused by other programs
 
 s = socket(AF_INET, SOCK_DGRAM) #create UDP socket
 s.bind(('', PORT))
