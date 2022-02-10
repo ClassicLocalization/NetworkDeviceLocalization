@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "cmd_system.h": "c",
+        "random": "c",
+        "xstring": "c",
+        "esp_console.h": "c"
+    }
+}

@@ -43,6 +43,92 @@ rule CUSTOM_COMMAND
 #############################################
 # Rule for compiling C files.
 
+rule C_COMPILER____idf_esp_ringbuf
+  depfile = $DEP_FILE
+  deps = gcc
+  command = ccache C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-gcc.exe $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out   -c $in
+  description = Building C object $out
+
+
+#############################################
+# Rule for linking C static library.
+
+rule C_STATIC_LIBRARY_LINKER____idf_esp_ringbuf
+  command = cmd.exe /C "$PRE_LINK && C:\Users\Superadmin\.espressif\tools\cmake\3.16.4\bin\cmake.exe -E remove $TARGET_FILE && C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-ar.exe qc $TARGET_FILE $LINK_FLAGS $in && C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-ranlib.exe $TARGET_FILE && $POST_BUILD"
+  description = Linking C static library $TARGET_FILE
+  restat = $RESTAT
+
+
+#############################################
+# Rule for compiling C files.
+
+rule C_COMPILER____idf_efuse
+  depfile = $DEP_FILE
+  deps = gcc
+  command = ccache C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-gcc.exe $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out   -c $in
+  description = Building C object $out
+
+
+#############################################
+# Rule for linking C static library.
+
+rule C_STATIC_LIBRARY_LINKER____idf_efuse
+  command = cmd.exe /C "$PRE_LINK && C:\Users\Superadmin\.espressif\tools\cmake\3.16.4\bin\cmake.exe -E remove $TARGET_FILE && C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-ar.exe qc $TARGET_FILE $LINK_FLAGS $in && C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-ranlib.exe $TARGET_FILE && $POST_BUILD"
+  description = Linking C static library $TARGET_FILE
+  restat = $RESTAT
+
+
+#############################################
+# Rule for compiling ASM files.
+
+rule ASM_COMPILER____idf_esp_ipc
+  depfile = $DEP_FILE
+  deps = gcc
+  command = ccache C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-gcc.exe $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out -c $in
+  description = Building ASM object $out
+
+
+#############################################
+# Rule for compiling C files.
+
+rule C_COMPILER____idf_esp_ipc
+  depfile = $DEP_FILE
+  deps = gcc
+  command = ccache C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-gcc.exe $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out   -c $in
+  description = Building C object $out
+
+
+#############################################
+# Rule for linking C static library.
+
+rule C_STATIC_LIBRARY_LINKER____idf_esp_ipc
+  command = cmd.exe /C "$PRE_LINK && C:\Users\Superadmin\.espressif\tools\cmake\3.16.4\bin\cmake.exe -E remove $TARGET_FILE && C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-ar.exe qc $TARGET_FILE $LINK_FLAGS $in && C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-ranlib.exe $TARGET_FILE && $POST_BUILD"
+  description = Linking C static library $TARGET_FILE
+  restat = $RESTAT
+
+
+#############################################
+# Rule for compiling C files.
+
+rule C_COMPILER____idf_driver
+  depfile = $DEP_FILE
+  deps = gcc
+  command = ccache C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-gcc.exe $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out   -c $in
+  description = Building C object $out
+
+
+#############################################
+# Rule for linking C static library.
+
+rule C_STATIC_LIBRARY_LINKER____idf_driver
+  command = cmd.exe /C "$PRE_LINK && C:\Users\Superadmin\.espressif\tools\cmake\3.16.4\bin\cmake.exe -E remove $TARGET_FILE && C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-ar.exe qc $TARGET_FILE $LINK_FLAGS $in && C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-ranlib.exe $TARGET_FILE && $POST_BUILD"
+  description = Linking C static library $TARGET_FILE
+  restat = $RESTAT
+
+
+#############################################
+# Rule for compiling C files.
+
 rule C_COMPILER____idf_esp_pm
   depfile = $DEP_FILE
   deps = gcc
@@ -148,25 +234,6 @@ rule CXX_STATIC_LIBRARY_LINKER__mbedtls
 #############################################
 # Rule for compiling C files.
 
-rule C_COMPILER____idf_efuse
-  depfile = $DEP_FILE
-  deps = gcc
-  command = ccache C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-gcc.exe $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out   -c $in
-  description = Building C object $out
-
-
-#############################################
-# Rule for linking C static library.
-
-rule C_STATIC_LIBRARY_LINKER____idf_efuse
-  command = cmd.exe /C "$PRE_LINK && C:\Users\Superadmin\.espressif\tools\cmake\3.16.4\bin\cmake.exe -E remove $TARGET_FILE && C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-ar.exe qc $TARGET_FILE $LINK_FLAGS $in && C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-ranlib.exe $TARGET_FILE && $POST_BUILD"
-  description = Linking C static library $TARGET_FILE
-  restat = $RESTAT
-
-
-#############################################
-# Rule for compiling C files.
-
 rule C_COMPILER____idf_app_update
   depfile = $DEP_FILE
   deps = gcc
@@ -197,25 +264,6 @@ rule C_COMPILER____idf_bootloader_support
 # Rule for linking C static library.
 
 rule C_STATIC_LIBRARY_LINKER____idf_bootloader_support
-  command = cmd.exe /C "$PRE_LINK && C:\Users\Superadmin\.espressif\tools\cmake\3.16.4\bin\cmake.exe -E remove $TARGET_FILE && C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-ar.exe qc $TARGET_FILE $LINK_FLAGS $in && C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-ranlib.exe $TARGET_FILE && $POST_BUILD"
-  description = Linking C static library $TARGET_FILE
-  restat = $RESTAT
-
-
-#############################################
-# Rule for compiling C files.
-
-rule C_COMPILER____idf_esp_ipc
-  depfile = $DEP_FILE
-  deps = gcc
-  command = ccache C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-gcc.exe $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out   -c $in
-  description = Building C object $out
-
-
-#############################################
-# Rule for linking C static library.
-
-rule C_STATIC_LIBRARY_LINKER____idf_esp_ipc
   command = cmd.exe /C "$PRE_LINK && C:\Users\Superadmin\.espressif\tools\cmake\3.16.4\bin\cmake.exe -E remove $TARGET_FILE && C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-ar.exe qc $TARGET_FILE $LINK_FLAGS $in && C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-ranlib.exe $TARGET_FILE && $POST_BUILD"
   description = Linking C static library $TARGET_FILE
   restat = $RESTAT
@@ -279,6 +327,16 @@ rule C_STATIC_LIBRARY_LINKER____idf_pthread
 
 
 #############################################
+# Rule for compiling ASM files.
+
+rule ASM_COMPILER____idf_esp_gdbstub
+  depfile = $DEP_FILE
+  deps = gcc
+  command = ccache C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-gcc.exe $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out -c $in
+  description = Building ASM object $out
+
+
+#############################################
 # Rule for compiling C files.
 
 rule C_COMPILER____idf_esp_gdbstub
@@ -292,6 +350,44 @@ rule C_COMPILER____idf_esp_gdbstub
 # Rule for linking C static library.
 
 rule C_STATIC_LIBRARY_LINKER____idf_esp_gdbstub
+  command = cmd.exe /C "$PRE_LINK && C:\Users\Superadmin\.espressif\tools\cmake\3.16.4\bin\cmake.exe -E remove $TARGET_FILE && C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-ar.exe qc $TARGET_FILE $LINK_FLAGS $in && C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-ranlib.exe $TARGET_FILE && $POST_BUILD"
+  description = Linking C static library $TARGET_FILE
+  restat = $RESTAT
+
+
+#############################################
+# Rule for compiling C files.
+
+rule C_COMPILER____idf_espcoredump
+  depfile = $DEP_FILE
+  deps = gcc
+  command = ccache C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-gcc.exe $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out   -c $in
+  description = Building C object $out
+
+
+#############################################
+# Rule for linking C static library.
+
+rule C_STATIC_LIBRARY_LINKER____idf_espcoredump
+  command = cmd.exe /C "$PRE_LINK && C:\Users\Superadmin\.espressif\tools\cmake\3.16.4\bin\cmake.exe -E remove $TARGET_FILE && C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-ar.exe qc $TARGET_FILE $LINK_FLAGS $in && C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-ranlib.exe $TARGET_FILE && $POST_BUILD"
+  description = Linking C static library $TARGET_FILE
+  restat = $RESTAT
+
+
+#############################################
+# Rule for compiling C files.
+
+rule C_COMPILER____idf_esp_phy
+  depfile = $DEP_FILE
+  deps = gcc
+  command = ccache C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-gcc.exe $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out   -c $in
+  description = Building C object $out
+
+
+#############################################
+# Rule for linking C static library.
+
+rule C_STATIC_LIBRARY_LINKER____idf_esp_phy
   command = cmd.exe /C "$PRE_LINK && C:\Users\Superadmin\.espressif\tools\cmake\3.16.4\bin\cmake.exe -E remove $TARGET_FILE && C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-ar.exe qc $TARGET_FILE $LINK_FLAGS $in && C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-ranlib.exe $TARGET_FILE && $POST_BUILD"
   description = Linking C static library $TARGET_FILE
   restat = $RESTAT
@@ -510,6 +606,25 @@ rule C_STATIC_LIBRARY_LINKER____idf_esp_wifi
 #############################################
 # Rule for compiling C files.
 
+rule C_COMPILER____idf_console
+  depfile = $DEP_FILE
+  deps = gcc
+  command = ccache C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-gcc.exe $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out   -c $in
+  description = Building C object $out
+
+
+#############################################
+# Rule for linking C static library.
+
+rule C_STATIC_LIBRARY_LINKER____idf_console
+  command = cmd.exe /C "$PRE_LINK && C:\Users\Superadmin\.espressif\tools\cmake\3.16.4\bin\cmake.exe -E remove $TARGET_FILE && C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-ar.exe qc $TARGET_FILE $LINK_FLAGS $in && C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-ranlib.exe $TARGET_FILE && $POST_BUILD"
+  description = Linking C static library $TARGET_FILE
+  restat = $RESTAT
+
+
+#############################################
+# Rule for compiling C files.
+
 rule C_COMPILER____idf_lwip
   depfile = $DEP_FILE
   deps = gcc
@@ -603,44 +718,6 @@ rule C_STATIC_LIBRARY_LINKER____idf_esp_hw_support
 
 
 #############################################
-# Rule for compiling C files.
-
-rule C_COMPILER____idf_esp_ringbuf
-  depfile = $DEP_FILE
-  deps = gcc
-  command = ccache C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-gcc.exe $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out   -c $in
-  description = Building C object $out
-
-
-#############################################
-# Rule for linking C static library.
-
-rule C_STATIC_LIBRARY_LINKER____idf_esp_ringbuf
-  command = cmd.exe /C "$PRE_LINK && C:\Users\Superadmin\.espressif\tools\cmake\3.16.4\bin\cmake.exe -E remove $TARGET_FILE && C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-ar.exe qc $TARGET_FILE $LINK_FLAGS $in && C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-ranlib.exe $TARGET_FILE && $POST_BUILD"
-  description = Linking C static library $TARGET_FILE
-  restat = $RESTAT
-
-
-#############################################
-# Rule for compiling C files.
-
-rule C_COMPILER____idf_driver
-  depfile = $DEP_FILE
-  deps = gcc
-  command = ccache C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-gcc.exe $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out   -c $in
-  description = Building C object $out
-
-
-#############################################
-# Rule for linking C static library.
-
-rule C_STATIC_LIBRARY_LINKER____idf_driver
-  command = cmd.exe /C "$PRE_LINK && C:\Users\Superadmin\.espressif\tools\cmake\3.16.4\bin\cmake.exe -E remove $TARGET_FILE && C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-ar.exe qc $TARGET_FILE $LINK_FLAGS $in && C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-ranlib.exe $TARGET_FILE && $POST_BUILD"
-  description = Linking C static library $TARGET_FILE
-  restat = $RESTAT
-
-
-#############################################
 # Rule for compiling ASM files.
 
 rule ASM_COMPILER____idf_xtensa
@@ -664,63 +741,6 @@ rule C_COMPILER____idf_xtensa
 # Rule for linking C static library.
 
 rule C_STATIC_LIBRARY_LINKER____idf_xtensa
-  command = cmd.exe /C "$PRE_LINK && C:\Users\Superadmin\.espressif\tools\cmake\3.16.4\bin\cmake.exe -E remove $TARGET_FILE && C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-ar.exe qc $TARGET_FILE $LINK_FLAGS $in && C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-ranlib.exe $TARGET_FILE && $POST_BUILD"
-  description = Linking C static library $TARGET_FILE
-  restat = $RESTAT
-
-
-#############################################
-# Rule for compiling C files.
-
-rule C_COMPILER____idf_espcoredump
-  depfile = $DEP_FILE
-  deps = gcc
-  command = ccache C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-gcc.exe $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out   -c $in
-  description = Building C object $out
-
-
-#############################################
-# Rule for linking C static library.
-
-rule C_STATIC_LIBRARY_LINKER____idf_espcoredump
-  command = cmd.exe /C "$PRE_LINK && C:\Users\Superadmin\.espressif\tools\cmake\3.16.4\bin\cmake.exe -E remove $TARGET_FILE && C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-ar.exe qc $TARGET_FILE $LINK_FLAGS $in && C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-ranlib.exe $TARGET_FILE && $POST_BUILD"
-  description = Linking C static library $TARGET_FILE
-  restat = $RESTAT
-
-
-#############################################
-# Rule for compiling C files.
-
-rule C_COMPILER____idf_perfmon
-  depfile = $DEP_FILE
-  deps = gcc
-  command = ccache C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-gcc.exe $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out   -c $in
-  description = Building C object $out
-
-
-#############################################
-# Rule for linking C static library.
-
-rule C_STATIC_LIBRARY_LINKER____idf_perfmon
-  command = cmd.exe /C "$PRE_LINK && C:\Users\Superadmin\.espressif\tools\cmake\3.16.4\bin\cmake.exe -E remove $TARGET_FILE && C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-ar.exe qc $TARGET_FILE $LINK_FLAGS $in && C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-ranlib.exe $TARGET_FILE && $POST_BUILD"
-  description = Linking C static library $TARGET_FILE
-  restat = $RESTAT
-
-
-#############################################
-# Rule for compiling C files.
-
-rule C_COMPILER____idf_esp32
-  depfile = $DEP_FILE
-  deps = gcc
-  command = ccache C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-gcc.exe $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out   -c $in
-  description = Building C object $out
-
-
-#############################################
-# Rule for linking C static library.
-
-rule C_STATIC_LIBRARY_LINKER____idf_esp32
   command = cmd.exe /C "$PRE_LINK && C:\Users\Superadmin\.espressif\tools\cmake\3.16.4\bin\cmake.exe -E remove $TARGET_FILE && C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-ar.exe qc $TARGET_FILE $LINK_FLAGS $in && C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-ranlib.exe $TARGET_FILE && $POST_BUILD"
   description = Linking C static library $TARGET_FILE
   restat = $RESTAT
@@ -948,25 +968,6 @@ rule C_STATIC_LIBRARY_LINKER____idf_coap
 #############################################
 # Rule for compiling C files.
 
-rule C_COMPILER____idf_console
-  depfile = $DEP_FILE
-  deps = gcc
-  command = ccache C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-gcc.exe $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out   -c $in
-  description = Building C object $out
-
-
-#############################################
-# Rule for linking C static library.
-
-rule C_STATIC_LIBRARY_LINKER____idf_console
-  command = cmd.exe /C "$PRE_LINK && C:\Users\Superadmin\.espressif\tools\cmake\3.16.4\bin\cmake.exe -E remove $TARGET_FILE && C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-ar.exe qc $TARGET_FILE $LINK_FLAGS $in && C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-ranlib.exe $TARGET_FILE && $POST_BUILD"
-  description = Linking C static library $TARGET_FILE
-  restat = $RESTAT
-
-
-#############################################
-# Rule for compiling C files.
-
 rule C_COMPILER____idf_nghttp
   depfile = $DEP_FILE
   deps = gcc
@@ -1111,6 +1112,25 @@ rule C_COMPILER____idf_esp_https_ota
 # Rule for linking C static library.
 
 rule C_STATIC_LIBRARY_LINKER____idf_esp_https_ota
+  command = cmd.exe /C "$PRE_LINK && C:\Users\Superadmin\.espressif\tools\cmake\3.16.4\bin\cmake.exe -E remove $TARGET_FILE && C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-ar.exe qc $TARGET_FILE $LINK_FLAGS $in && C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-ranlib.exe $TARGET_FILE && $POST_BUILD"
+  description = Linking C static library $TARGET_FILE
+  restat = $RESTAT
+
+
+#############################################
+# Rule for compiling C files.
+
+rule C_COMPILER____idf_esp_lcd
+  depfile = $DEP_FILE
+  deps = gcc
+  command = ccache C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-gcc.exe $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out   -c $in
+  description = Building C object $out
+
+
+#############################################
+# Rule for linking C static library.
+
+rule C_STATIC_LIBRARY_LINKER____idf_esp_lcd
   command = cmd.exe /C "$PRE_LINK && C:\Users\Superadmin\.espressif\tools\cmake\3.16.4\bin\cmake.exe -E remove $TARGET_FILE && C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-ar.exe qc $TARGET_FILE $LINK_FLAGS $in && C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-ranlib.exe $TARGET_FILE && $POST_BUILD"
   description = Linking C static library $TARGET_FILE
   restat = $RESTAT
@@ -1435,6 +1455,25 @@ rule C_STATIC_LIBRARY_LINKER____idf_openssl
 #############################################
 # Rule for compiling C files.
 
+rule C_COMPILER____idf_perfmon
+  depfile = $DEP_FILE
+  deps = gcc
+  command = ccache C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-gcc.exe $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out   -c $in
+  description = Building C object $out
+
+
+#############################################
+# Rule for linking C static library.
+
+rule C_STATIC_LIBRARY_LINKER____idf_perfmon
+  command = cmd.exe /C "$PRE_LINK && C:\Users\Superadmin\.espressif\tools\cmake\3.16.4\bin\cmake.exe -E remove $TARGET_FILE && C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-ar.exe qc $TARGET_FILE $LINK_FLAGS $in && C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-ranlib.exe $TARGET_FILE && $POST_BUILD"
+  description = Linking C static library $TARGET_FILE
+  restat = $RESTAT
+
+
+#############################################
+# Rule for compiling C files.
+
 rule C_COMPILER____idf_spiffs
   depfile = $DEP_FILE
   deps = gcc
@@ -1492,25 +1531,6 @@ rule C_STATIC_LIBRARY_LINKER____idf_wifi_provisioning
 #############################################
 # Rule for compiling C files.
 
-rule C_COMPILER____idf_protocol_examples_common
-  depfile = $DEP_FILE
-  deps = gcc
-  command = ccache C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-gcc.exe $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out   -c $in
-  description = Building C object $out
-
-
-#############################################
-# Rule for linking C static library.
-
-rule C_STATIC_LIBRARY_LINKER____idf_protocol_examples_common
-  command = cmd.exe /C "$PRE_LINK && C:\Users\Superadmin\.espressif\tools\cmake\3.16.4\bin\cmake.exe -E remove $TARGET_FILE && C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-ar.exe qc $TARGET_FILE $LINK_FLAGS $in && C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-ranlib.exe $TARGET_FILE && $POST_BUILD"
-  description = Linking C static library $TARGET_FILE
-  restat = $RESTAT
-
-
-#############################################
-# Rule for compiling C files.
-
 rule C_COMPILER____idf_main
   depfile = $DEP_FILE
   deps = gcc
@@ -1522,6 +1542,25 @@ rule C_COMPILER____idf_main
 # Rule for linking C static library.
 
 rule C_STATIC_LIBRARY_LINKER____idf_main
+  command = cmd.exe /C "$PRE_LINK && C:\Users\Superadmin\.espressif\tools\cmake\3.16.4\bin\cmake.exe -E remove $TARGET_FILE && C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-ar.exe qc $TARGET_FILE $LINK_FLAGS $in && C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-ranlib.exe $TARGET_FILE && $POST_BUILD"
+  description = Linking C static library $TARGET_FILE
+  restat = $RESTAT
+
+
+#############################################
+# Rule for compiling C files.
+
+rule C_COMPILER____idf_protocol_examples_common
+  depfile = $DEP_FILE
+  deps = gcc
+  command = ccache C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-gcc.exe $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out   -c $in
+  description = Building C object $out
+
+
+#############################################
+# Rule for linking C static library.
+
+rule C_STATIC_LIBRARY_LINKER____idf_protocol_examples_common
   command = cmd.exe /C "$PRE_LINK && C:\Users\Superadmin\.espressif\tools\cmake\3.16.4\bin\cmake.exe -E remove $TARGET_FILE && C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-ar.exe qc $TARGET_FILE $LINK_FLAGS $in && C:\Users\Superadmin\.espressif\tools\xtensa-esp32-elf\esp-2021r2-8.4.0\xtensa-esp32-elf\bin\xtensa-esp32-elf-ranlib.exe $TARGET_FILE && $POST_BUILD"
   description = Linking C static library $TARGET_FILE
   restat = $RESTAT
