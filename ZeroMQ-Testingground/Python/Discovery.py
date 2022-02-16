@@ -6,17 +6,33 @@ def close(s):
     s.close()
     print("closed")
 
-PORT = 50000
 
-s = socket(AF_INET, SOCK_DGRAM) #create UDP socket
-s.bind(('', PORT))
+def start_session(count):
+    PORT = 50000
+    PORT = 50000
 
-while 1:
+    s = socket(AF_INET, SOCK_DGRAM) #create UDP socket
+    s.bind(('', PORT))
+
+    someData = "Proceed with CSI"
+    s.sendto(someData.encode('utf-8'), ("192.168.4.2", PORT))
+    print("sent service announcement")
     data, addr = s.recvfrom(1024) #wait for a packet
     print("got service announcement from", data)
     print(addr)
-    s.sendto(data, (addr[0], addr[1]))
-    print(data)
-    print("sent service announcement")
-    sleep(5)
+    recieved = False;
+    counter = 0
+    while not recieved:
+        counter += 1
+        data, addr = s.recvfrom(1024)  # wait for a packet
+        print("got service announcement from", data)
+        print(addr)
+        someData = "Proceed with CSI"
+        s.sendto (someData.encode ('utf-8'), ("192.168.4.2", PORT))
+        print ("sent service announcement")
+        data, addr = s.recvfrom (1024)  # wait for a packet
+        if counter > count:
+         recieved = True
+
+start_session(15)
 
