@@ -4,13 +4,17 @@
     <list default="true" id="b460def3-291f-46ef-abae-b256fb51f038" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Discovery.py" beforeDir="false" afterPath="$PROJECT_DIR$/Discovery.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../esp/ap_csi/main/ping_cmd.c" beforeDir="false" afterPath="$PROJECT_DIR$/../../esp/ap_csi/main/ping_cmd.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../esp/.vscode/settings.json" beforeDir="false" afterPath="$PROJECT_DIR$/../../esp/.vscode/settings.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../esp/sta_csi/build/.bin_timestamp" beforeDir="false" afterPath="$PROJECT_DIR$/../../esp/sta_csi/build/.bin_timestamp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../esp/sta_csi/build/.ninja_deps" beforeDir="false" afterPath="$PROJECT_DIR$/../../esp/sta_csi/build/.ninja_deps" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../esp/sta_csi/build/.ninja_log" beforeDir="false" afterPath="$PROJECT_DIR$/../../esp/sta_csi/build/.ninja_log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../esp/sta_csi/build/CMakeFiles/git-data/HEAD" beforeDir="false" afterPath="$PROJECT_DIR$/../../esp/sta_csi/build/CMakeFiles/git-data/HEAD" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../esp/sta_csi/build/CMakeFiles/git-data/head-ref" beforeDir="false" afterPath="$PROJECT_DIR$/../../esp/sta_csi/build/CMakeFiles/git-data/head-ref" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../esp/sta_csi/build/bootloader/.bin_timestamp" beforeDir="false" afterPath="$PROJECT_DIR$/../../esp/sta_csi/build/bootloader/.bin_timestamp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../esp/sta_csi/build/bootloader/.ninja_deps" beforeDir="false" afterPath="$PROJECT_DIR$/../../esp/sta_csi/build/bootloader/.ninja_deps" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../esp/sta_csi/build/bootloader/.ninja_log" beforeDir="false" afterPath="$PROJECT_DIR$/../../esp/sta_csi/build/bootloader/.ninja_log" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../esp/sta_csi/build/bootloader/bootloader.bin" beforeDir="false" afterPath="$PROJECT_DIR$/../../esp/sta_csi/build/bootloader/bootloader.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../esp/sta_csi/build/bootloader/bootloader.elf" beforeDir="false" afterPath="$PROJECT_DIR$/../../esp/sta_csi/build/bootloader/bootloader.elf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../esp/sta_csi/build/bootloader/esp-idf/bootloader_support/libbootloader_support.a" beforeDir="false" afterPath="$PROJECT_DIR$/../../esp/sta_csi/build/bootloader/esp-idf/bootloader_support/libbootloader_support.a" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../esp/sta_csi/build/build.ninja" beforeDir="false" afterPath="$PROJECT_DIR$/../../esp/sta_csi/build/build.ninja" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../esp/sta_csi/build/compile_commands.json" beforeDir="false" afterPath="$PROJECT_DIR$/../../esp/sta_csi/build/compile_commands.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../esp/sta_csi/build/esp-idf/app_update/libapp_update.a" beforeDir="false" afterPath="$PROJECT_DIR$/../../esp/sta_csi/build/esp-idf/app_update/libapp_update.a" afterDir="false" />
@@ -19,6 +23,8 @@
       <change beforePath="$PROJECT_DIR$/../../esp/sta_csi/build/sta_csi.elf" beforeDir="false" afterPath="$PROJECT_DIR$/../../esp/sta_csi/build/sta_csi.elf" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../esp/sta_csi/build/sta_csi.map" beforeDir="false" afterPath="$PROJECT_DIR$/../../esp/sta_csi/build/sta_csi.map" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../esp/sta_csi/main/app_main.c" beforeDir="false" afterPath="$PROJECT_DIR$/../../esp/sta_csi/main/app_main.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../esp/sta_csi/main/app_priv.h" beforeDir="false" afterPath="$PROJECT_DIR$/../../esp/sta_csi/main/app_priv.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../esp/sta_csi/main/utils.c" beforeDir="false" afterPath="$PROJECT_DIR$/../../esp/sta_csi/main/utils.c" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -76,8 +82,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Discovery.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="403">
-              <caret line="33" column="27" lean-forward="true" selection-start-line="33" selection-start-column="27" selection-end-line="33" selection-end-column="27" />
+            <state relative-caret-position="335">
+              <caret line="28" column="38" lean-forward="true" selection-start-line="28" selection-start-column="38" selection-end-line="28" selection-end-column="38" />
               <folding>
                 <element signature="e#0#46#0" expanded="true" />
               </folding>
@@ -122,7 +128,7 @@
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="-8" />
+    <option name="x" value="-397" />
     <option name="y" value="-8" />
     <option name="width" value="1936" />
     <option name="height" value="1056" />
@@ -133,6 +139,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -159,7 +166,6 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -264,8 +270,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Discovery.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="403">
-          <caret line="33" column="27" lean-forward="true" selection-start-line="33" selection-start-column="27" selection-end-line="33" selection-end-column="27" />
+        <state relative-caret-position="335">
+          <caret line="28" column="38" lean-forward="true" selection-start-line="28" selection-start-column="38" selection-end-line="28" selection-end-column="38" />
           <folding>
             <element signature="e#0#46#0" expanded="true" />
           </folding>

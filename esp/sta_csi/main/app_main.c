@@ -25,8 +25,9 @@
 #include "lwip/netdb.h"
 #include "lwip/sockets.h"
 
-#include "esp_radar.h"
 #include "app_priv.h"
+#include "esp_radar.h"
+
 
 #define CONFIG_CSI_BUF_SIZE          50
 #define CONFIG_GPIO_LED_MOVE_STATUS  GPIO_NUM_18
@@ -271,6 +272,7 @@ static void wifi_radar_cb(const wifi_radar_info_t *info, void *ctx)
     float amplitude_std  = avg(info->amplitude_std, radar_config.filter_len / 128);
     float amplitude_corr = avg(info->amplitude_corr, radar_config.filter_len / 128);
     float amplitude_std_max = 0;
+    float amplitude_std_min = 0;
     float amplitude_std_avg = 0;
     s_amplitude_std_list[s_count % CONFIG_CSI_BUF_SIZE] = amplitude_std;
 
@@ -278,6 +280,7 @@ static void wifi_radar_cb(const wifi_radar_info_t *info, void *ctx)
 
     if (s_count > CONFIG_CSI_BUF_SIZE) {
         amplitude_std_max = max(s_amplitude_std_list, CONFIG_CSI_BUF_SIZE, 0.10);
+        amplitude_std_min = min(s_amplitude_std_list, CONFIG_CSI_BUF_SIZE, 0.10);
         amplitude_std_avg = trimmean(s_amplitude_std_list, CONFIG_CSI_BUF_SIZE, 0.10);
 
         for (int i = 1, count = 0; i < 6; ++i) {
@@ -336,7 +339,10 @@ static void wifi_radar_cb(const wifi_radar_info_t *info, void *ctx)
 
         sprintf(data, "%d", info->rssi_avg);
         strcat(payload, data);
+        strcat(payload, ", std_min: ");
 
+        sprintf(data, "%f", amplitude_std_min);
+        strcat(payload, data);
 
         int err = sendto(sock, payload, strlen(payload), 0, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
         if (err < 0) {

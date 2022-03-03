@@ -22,6 +22,7 @@ extern "C"
 bool mac_str2hex(const char *mac_str, uint8_t *mac_hex);
 float avg(const float *array, size_t len);
 float max(const float *array, size_t len, float percent);
+float min(const float *array, size_t len, float percent);
 float trimmean(const float *array, size_t len, float percent);
 
 void cmd_register_ping(void);

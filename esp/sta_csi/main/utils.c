@@ -82,3 +82,16 @@ float max(const float *array, size_t len, float percent)
     free(tmp);
     return max_data;
 }
+
+float min(const float *array, size_t len, float percent)
+{
+    float min_data = 0;
+    float *tmp = malloc(sizeof(float) * len);
+
+    memcpy(tmp, array, sizeof(float) * len);
+    qsort(tmp, len, sizeof(float), cmp_float);
+    min_data = tmp[0];
+
+    free(tmp);
+    return min_data;
+}

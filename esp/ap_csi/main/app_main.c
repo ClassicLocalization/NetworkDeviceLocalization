@@ -44,6 +44,12 @@ static const char *TAG  = "app_main";
 float g_move_absolute_threshold = 0.3;
 float g_move_relative_threshold = 1.5;
 
+static int num_sta_connected = 0;
+
+static int external_ip = null;
+
+
+
 static void wifi_init(void)
 {
     esp_err_t ret = nvs_flash_init();
@@ -66,28 +72,19 @@ static void wifi_init(void)
     ESP_ERROR_CHECK(esp_wifi_start());
 }
 
-static void wifi_event_handler(void *arg, esp_event_base_t event_base,
-                               int32_t event_id, void *event_data)
+static void wifi_event_handler(void* arg, esp_event_base_t event_base,
+                                    int32_t event_id, void* event_data)
 {
-    if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
-        xEventGroupClearBits(s_wifi_event_group, WIFI_DISCONNECTED_BIT);
-        xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
-    } else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
-        if (s_reconnect) {
-            ESP_LOGI(TAG, "sta disconnect, s_reconnect...");
-            esp_wifi_connect();
-        } else {
-            ESP_LOGI(TAG, "sta disconnect");
-        }
-
-        xEventGroupClearBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
-        xEventGroupSetBits(s_wifi_event_group, WIFI_DISCONNECTED_BIT);
-    } else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_CONNECTED) {
-        wifi_event_sta_connected_t *event = (wifi_event_sta_connected_t *)event_data;
-        ESP_LOGI(TAG, "Connected to %s (bssid: "MACSTR", channel: %d)", event->ssid,
-                 MAC2STR(event->bssid), event->channel);
-    }  else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_AP_STACONNECTED) {
-        ESP_LOGI(TAG, "STA Connecting to the AP again...");
+    if (event_id == WIFI_EVENT_AP_STACONNECTED) {
+        wifi_event_ap_staconnected_t* event = (wifi_event_ap_staconnected_t*) event_data;
+        ESP_LOGI(TAG, "station "MACSTR" join, AID=%d",
+                 MAC2STR(event->mac), event->aid);
+        num_sta_connected++;
+    } else if (event_id == WIFI_EVENT_AP_STADISCONNECTED) {
+        wifi_event_ap_stadisconnected_t* event = (wifi_event_ap_stadisconnected_t*) event_data;
+        ESP_LOGI(TAG, "station "MACSTR" leave, AID=%d",
+                 MAC2STR(event->mac), event->aid);
+        num_sta_connected--;
     }
 }
 
@@ -135,6 +132,142 @@ static int ap_setup(char *password, char *ssid, int max_connection)
     ESP_LOGI(TAG, "Starting SoftAP SSID: %s, Password: %s", ssid, password);
 
     return ESP_OK;
+}
+
+static void wait_csi_enabling(void)
+{
+    char rx_buffer[128];
+    char addr_str[128];
+    int addr_family = AF_INET;
+    int ip_protocol = 0;
+    struct sockaddr_in6 dest_addr;
+
+    while (1) {
+        struct sockaddr_in *dest_addr_ip4 = (struct sockaddr_in *)&dest_addr;
+        dest_addr_ip4->sin_family = AF_INET;
+        dest_addr_ip4->sin_port = htons(port);
+        ip_protocol = IPPROTO_IP;
+
+        int sock = socket(addr_family, SOCK_DGRAM, ip_protocol);
+        if (sock < 0) {
+            ESP_LOGE(TAG, "Unable to create socket: errno %d", errno);
+            break;
+        }
+        ESP_LOGI(TAG, "Socket created");
+
+        #if defined(CONFIG_EXAMPLE_IPV4) && defined(CONFIG_EXAMPLE_IPV6)
+            if (addr_family == AF_INET6) {
+                // Note that by default IPV6 binds to both protocols, it is must be disabled
+                // if both protocols used at the same time (used in CI)
+                int opt = 1;
+                setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+                setsockopt(sock, IPPROTO_IPV6, IPV6_V6ONLY, &opt, sizeof(opt));
+            }
+        #endif
+
+        int err = bind(sock, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
+        if (err < 0) {
+            ESP_LOGE(TAG, "Socket unable to bind: errno %d", errno);
+        }
+        ESP_LOGI(TAG, "Socket bound, port %d", port);
+
+        while (1) {
+            ESP_LOGI(TAG, "Waiting for activation");
+            struct sockaddr_storage source_addr; // Large enough for both IPv4 or IPv6
+            socklen_t socklen = sizeof(source_addr);
+            int len = recvfrom(sock, rx_buffer, sizeof(rx_buffer) - 1, 0, (struct sockaddr *)&source_addr, &socklen);
+
+            // Error occurred during receiving
+            if (len < 0) {
+                ESP_LOGE(TAG, "recvfrom failed: errno %d", errno);
+                break;
+            }
+            // Data received
+            else {
+                // Get the sender's ip address as string
+                if (source_addr.ss_family == PF_INET) {
+                    inet_ntoa_r(((struct sockaddr_in *)&source_addr)->sin_addr, addr_str, sizeof(addr_str) - 1);
+                } else if (source_addr.ss_family == PF_INET6) {
+                    inet6_ntoa_r(((struct sockaddr_in6 *)&source_addr)->sin6_addr, addr_str, sizeof(addr_str) - 1);
+                }
+
+                rx_buffer[len] = 0; // Null-terminate whatever we received and treat like a string...
+                ESP_LOGI(TAG, "Received %d bytes from %s:", len, addr_str);
+                ESP_LOGI(TAG, "%s", rx_buffer);
+                
+                if (evaluateCommand(rx_buffer)) {
+                    ESP_LOGI(TAG, "Starting csi exchange");
+                    for(int i = 0; i < num_sta_connected; i++) {
+                        if()
+                        dest_addr_ip4->sin_addr.s_addr = inet_addr("192.168.4.%d", i+2);
+                        int err = sendto(sock, "Starting csi exchange ", len, 0, (struct sockaddr *)&dest_addr_ip4, sizeof(dest_addr_ip4));
+                    }
+                    
+                } else {
+                    ESP_LOGI(TAG; "Command unknown");
+                }
+                if (err < 0) {
+                    ESP_LOGE(TAG, "Error occurred during sending: errno %d", errno);
+                    break;
+                }
+            }
+        }
+
+        if (sock != -1) {
+            ESP_LOGE(TAG, "Shutting down socket listener and restarting...");
+            shutdown(sock, 0);
+            close(sock);
+        }
+    }
+    vTaskDelete(NULL);
+}
+
+bool evaluateCommand(char command[]) {
+    for(int i = 0:; i < command.length; i++) {
+        if(i == 0) {
+            if(command[i] != 'c' || command[i+1] != 's' || command[i+2] != 'i') {
+                return false;
+            }
+        }else if(command[i] == '-') {
+            if(command[i+1] != 'e') {
+                return false;
+            }
+        }else if(command[i] == '.') {
+            int temp = i+1;
+            int index = 0;
+            char storage[5] = "";
+            while(isdigit(command[temp])) {
+                storage[index] = command[temp];
+            }
+            external_ip = atoi(storage);
+        }
+    }
+    return true;
+}
+
+void send_tasks(void)
+{
+        struct sockaddr_in dest_addr;
+        dest_addr.sin_addr.s_addr = inet_addr("192.168.4.3");
+        dest_addr.sin_family = AF_INET;
+        dest_addr.sin_port = htons(port);
+
+        int addr_family = AF_INET;
+        int ip_protocol = IPPROTO_IP;
+
+        int sock = socket(addr_family, SOCK_DGRAM, ip_protocol);
+
+        char *payload[100];
+
+        int err = sendto(sock, payload, strlen(payload), 0, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
+        if (err < 0) {
+            ESP_LOGE(TAG, "Error occurred during sending: errno %d", errno);
+        }
+        ESP_LOGI(TAG, "Task sent.");
+
+        ESP_LOGE(TAG, "Shutting down socket sender...");
+        shutdown(sock, 0);
+        close(sock);
 }
 
 void wifi_csi_raw_cb(void *ctx, wifi_csi_info_t *info)
