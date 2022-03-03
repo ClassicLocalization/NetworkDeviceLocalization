@@ -45,8 +45,8 @@ float g_move_absolute_threshold = 0.3;
 float g_move_relative_threshold = 1.5;
 
 static int num_sta_connected = 0;
-
-static int external_ip = null;
+static int port = 50000;
+static int external_ip = 0;
 
 
 
@@ -134,6 +134,37 @@ static int ap_setup(char *password, char *ssid, int max_connection)
     return ESP_OK;
 }
 
+static bool evaluateCommand(char command[]) {
+    int condition = 0; //needs to be 2 for value true
+    for(int i = 0; i < strlen(command); i++) {
+        if(i == 0) {
+            if(command[i] != 'c' || command[i+1] != 's' || command[i+2] != 'i') {
+                return false;
+            }else {
+                condition++;
+            }
+        }else if(command[i] == '-') {
+            if(command[i+1] != 'e') {
+                return false;
+            }else {
+                condition++;
+            }
+        }else if(command[i] == '.') {
+            int temp = i+1;
+            int index = 0;
+            char storage[5] = "";
+            while(isdigit(command[temp]) && temp < strlen(command)) {
+                storage[index] = command[temp];
+                temp++;
+                index++;
+            }
+            external_ip = atoi(storage);
+            return condition == 2;
+        }
+    }
+    return false;
+}
+
 static void wait_csi_enabling(void)
 {
     char rx_buffer[128];
@@ -198,13 +229,14 @@ static void wait_csi_enabling(void)
                 if (evaluateCommand(rx_buffer)) {
                     ESP_LOGI(TAG, "Starting csi exchange");
                     for(int i = 0; i < num_sta_connected; i++) {
-                        if()
-                        dest_addr_ip4->sin_addr.s_addr = inet_addr("192.168.4.%d", i+2);
+                        ESP_LOGI(TAG, "sending confirmation");
+                        //dest_addr_ip4->sin_addr.s_addr = inet_addr(("192.168.4.%d", external_ip));
+                        dest_addr_ip4->sin_addr.s_addr = inet_addr("192.168.4.2");
                         int err = sendto(sock, "Starting csi exchange ", len, 0, (struct sockaddr *)&dest_addr_ip4, sizeof(dest_addr_ip4));
                     }
                     
                 } else {
-                    ESP_LOGI(TAG; "Command unknown");
+                    ESP_LOGI(TAG, "Command unknown");
                 }
                 if (err < 0) {
                     ESP_LOGE(TAG, "Error occurred during sending: errno %d", errno);
@@ -220,29 +252,6 @@ static void wait_csi_enabling(void)
         }
     }
     vTaskDelete(NULL);
-}
-
-bool evaluateCommand(char command[]) {
-    for(int i = 0:; i < command.length; i++) {
-        if(i == 0) {
-            if(command[i] != 'c' || command[i+1] != 's' || command[i+2] != 'i') {
-                return false;
-            }
-        }else if(command[i] == '-') {
-            if(command[i+1] != 'e') {
-                return false;
-            }
-        }else if(command[i] == '.') {
-            int temp = i+1;
-            int index = 0;
-            char storage[5] = "";
-            while(isdigit(command[temp])) {
-                storage[index] = command[temp];
-            }
-            external_ip = atoi(storage);
-        }
-    }
-    return true;
 }
 
 void send_tasks(void)
@@ -415,5 +424,6 @@ void app_main(void)
     ESP_ERROR_CHECK(esp_console_start_repl(repl));
 
     ap_setup("123456789", "csi_softap", 8);
+    wait_csi_enabling();
 
 }
