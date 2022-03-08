@@ -8,6 +8,13 @@
         "xhash": "c",
         "xtree": "c",
         "esp_wifi.h": "c",
-        "stdlib.h": "c"
+        "stdlib.h": "c",
+        "future": "c",
+        "system_error": "c",
+        "*.ipp": "c",
+        "array": "c",
+        "vector": "c",
+        "xstring": "c",
+        "xutility": "c"
     }
 }

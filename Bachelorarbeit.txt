@@ -35,3 +35,5 @@ bindmode auf 000
 Isomaps (wireless sensor network)
 
 https://www.jabref.org/ Reference Manager for BA
+
+git bisect

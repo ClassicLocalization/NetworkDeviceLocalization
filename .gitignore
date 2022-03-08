@@ -352,3 +352,4 @@ MigrationBackup/
 # esp specific projects
 esp-csi/
 esp/esp-idf/
+build/

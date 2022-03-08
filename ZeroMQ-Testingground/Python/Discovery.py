@@ -13,8 +13,8 @@ def start_session(count):
     s = socket(AF_INET, SOCK_DGRAM) #create UDP socket
     s.bind(('', PORT))
 
-    some_data = "Proceed with CSI"
-    s.sendto(some_data.encode('utf-8'), ("192.168.4.2", PORT))
+    some_data = "csi -e .2"
+    s.sendto(some_data.encode('utf-8'), ("192.168.4.1", PORT))
     print("sent service announcement")
     data, addr = s.recvfrom(1024) #wait for a packet
     print("got service announcement from", data)
@@ -27,11 +27,11 @@ def start_session(count):
         print("got service announcement from", data)
         print(addr)
         some_data = "Proceed with CSI"
-        s.sendto(some_data.encode ('utf-8'), ("192.168.4.2", PORT))
+        s.sendto(some_data.encode ('utf-8'), ("192.168.4.1", PORT))
         print("sent service announcement")
         data, addr = s.recvfrom(1024)  # wait for a packet
         if counter > count:
-         recieved = True
+            recieved = True
 
 start_session(5)
 

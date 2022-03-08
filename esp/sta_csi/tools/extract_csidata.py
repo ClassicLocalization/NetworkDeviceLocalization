@@ -85,9 +85,9 @@ if __name__ == '__main__':
         exit()
 
     parser = argparse.ArgumentParser(
-        description="filter CSI_DATA from sta_csi logfile")
+        description="filter CSI_DATA from console_test logfile")
     parser.add_argument('-S', '--src', dest='src_file', action='store', required=True,
-                        help="sta_csi logfile")
+                        help="console_test logfile")
     parser.add_argument('-D', '--dst', dest='dst_file', action='store', default=None,
                         help="output file saved csi data")
     args = parser.parse_args()

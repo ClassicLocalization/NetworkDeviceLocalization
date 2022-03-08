@@ -165,6 +165,48 @@ static bool evaluateCommand(char command[]) {
     return false;
 }
 
+void send_task(char ip_address[], char message[]) 
+{
+    struct sockaddr_in dest_addr;
+    dest_addr.sin_addr.s_addr = inet_addr(ip_address);
+    dest_addr.sin_family = AF_INET;
+    dest_addr.sin_port = htons(port);
+
+    int addr_family = AF_INET;
+    int ip_protocol = IPPROTO_IP;
+
+    int sock = socket(addr_family, SOCK_DGRAM, ip_protocol);
+
+    char *payload[100];
+    strcpy(payload, message);
+
+    int err = sendto(sock, payload, strlen(payload), 0, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
+    if (err < 0) {
+        ESP_LOGE(TAG, "Error occurred during sending: errno %d", errno);
+    }
+    ESP_LOGI(TAG, "Confirmation sent");
+
+    ESP_LOGE(TAG, "Shutting down socket sender...");
+    shutdown(sock, 0);
+    close(sock);
+}
+
+void send_tasks(void)
+{
+    char storage[25] = "";
+    char storage2[25] = "";
+    for(int i = 0; i < num_sta_connected; i++) {
+        sprintf(storage, "192.168.4.%d", i+2);
+        if(i+2 == external_ip) {
+            send_task(storage, "Inititalizing csi exchange");
+        }else {
+            sprintf(storage2, "csi -i -e .%d", external_ip);
+            send_task(storage, storage2);
+        }
+
+    }
+}
+
 static void wait_csi_enabling(void)
 {
     char rx_buffer[128];
@@ -228,12 +270,7 @@ static void wait_csi_enabling(void)
                 
                 if (evaluateCommand(rx_buffer)) {
                     ESP_LOGI(TAG, "Starting csi exchange");
-                    for(int i = 0; i < num_sta_connected; i++) {
-                        ESP_LOGI(TAG, "sending confirmation");
-                        //dest_addr_ip4->sin_addr.s_addr = inet_addr(("192.168.4.%d", external_ip));
-                        dest_addr_ip4->sin_addr.s_addr = inet_addr("192.168.4.2");
-                        int err = sendto(sock, "Starting csi exchange ", len, 0, (struct sockaddr *)&dest_addr_ip4, sizeof(dest_addr_ip4));
-                    }
+                    send_tasks();
                     
                 } else {
                     ESP_LOGI(TAG, "Command unknown");
@@ -252,31 +289,6 @@ static void wait_csi_enabling(void)
         }
     }
     vTaskDelete(NULL);
-}
-
-void send_tasks(void)
-{
-        struct sockaddr_in dest_addr;
-        dest_addr.sin_addr.s_addr = inet_addr("192.168.4.3");
-        dest_addr.sin_family = AF_INET;
-        dest_addr.sin_port = htons(port);
-
-        int addr_family = AF_INET;
-        int ip_protocol = IPPROTO_IP;
-
-        int sock = socket(addr_family, SOCK_DGRAM, ip_protocol);
-
-        char *payload[100];
-
-        int err = sendto(sock, payload, strlen(payload), 0, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
-        if (err < 0) {
-            ESP_LOGE(TAG, "Error occurred during sending: errno %d", errno);
-        }
-        ESP_LOGI(TAG, "Task sent.");
-
-        ESP_LOGE(TAG, "Shutting down socket sender...");
-        shutdown(sock, 0);
-        close(sock);
 }
 
 void wifi_csi_raw_cb(void *ctx, wifi_csi_info_t *info)
