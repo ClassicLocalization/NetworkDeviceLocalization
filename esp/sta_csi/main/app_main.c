@@ -49,6 +49,19 @@ static int port = 50000;
 static char ip_address[15] = "";
 static int external_ip = 0;
 
+//structure for the static network protocol to dermine when the station is 
+//an access point and when it initializes a csi exchange
+struct static_protocol{
+    bool started;
+    int start_ap_count;
+    int start_ap;
+    int start_csi_count;
+    int start_csi;
+    struct macs{
+        char mac_1[16];
+    } macs;
+} protocol = {};
+
 static void wifi_init(void)
 {
     esp_err_t ret = nvs_flash_init();
@@ -69,37 +82,6 @@ static void wifi_init(void)
     ESP_ERROR_CHECK(esp_wifi_set_storage(WIFI_STORAGE_RAM));
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_NULL));
     ESP_ERROR_CHECK(esp_wifi_start());
-}
-
-void wifi_csi_raw_cb(void *ctx, wifi_csi_info_t *info)
-{
-    static char buff[2048];
-    size_t len = 0;
-    wifi_pkt_rx_ctrl_t *rx_ctrl = &info->rx_ctrl;
-    static uint32_t s_count = 0;
-
-    if (!s_count) {
-        // ets_printf("type,id,mac,rssi,rate,sig_mode,mcs,bandwidth,smoothing,not_sounding,aggregation,stbc,fec_coding,sgi,noise_floor,ampdu_cnt,channel,secondary_channel,local_timestamp,ant,sig_len,rx_state,len,first_word,data\n");
-        len += snprintf(buff, sizeof(buff),"type,id,mac,rssi,rate,sig_mode,mcs,bandwidth,smoothing,not_sounding,aggregation,stbc,fec_coding,sgi,noise_floor,ampdu_cnt,channel,secondary_channel,local_timestamp,ant,sig_len,rx_state,len,first_word,data\n");
-    }
-
-    len += snprintf(buff + len, sizeof(buff) - len,"CSI_DATA,%d," MACSTR ",%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d",
-               s_count++, MAC2STR(info->mac), rx_ctrl->rssi, rx_ctrl->rate, rx_ctrl->sig_mode,
-               rx_ctrl->mcs, rx_ctrl->cwb, rx_ctrl->smoothing, rx_ctrl->not_sounding,
-               rx_ctrl->aggregation, rx_ctrl->stbc, rx_ctrl->fec_coding, rx_ctrl->sgi,
-               rx_ctrl->noise_floor, rx_ctrl->ampdu_cnt, rx_ctrl->channel, rx_ctrl->secondary_channel,
-               rx_ctrl->timestamp, rx_ctrl->ant, rx_ctrl->sig_len, rx_ctrl->rx_state);
-
-    len += snprintf(buff + len, sizeof(buff) - len, ",%d,%d,\"[", info->len, info->first_word_invalid);
-
-    int i = 0;
-    for (; i < info->len - 1; i++) {
-        len += snprintf(buff + len, sizeof(buff) - len, "%d,", info->buf[i]);
-    }
-    len += snprintf(buff + len, sizeof(buff) - len, "%d",info->buf[i]);
-
-    len += snprintf(buff + len, sizeof(buff) - len, "]\"\n");
-    ets_printf("%s",buff);
 }
 
 /* Event handler for catching system events */
@@ -128,7 +110,32 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
     }
 }
 
-static int sta_ap_setup(char *user_password, char *user_ssid, int setup)
+void send_confirmation(char ap_address[], char message[]) 
+{
+    struct sockaddr_in dest_addr;
+    dest_addr.sin_addr.s_addr = inet_addr(ap_address);
+    dest_addr.sin_family = AF_INET;
+    dest_addr.sin_port = htons(port);
+    int addr_family = AF_INET;
+    int ip_protocol = IPPROTO_IP;
+
+    int sock = socket(addr_family, SOCK_DGRAM, ip_protocol);
+
+    char *payload[100];
+    strcpy(payload, message);
+
+    int err = sendto(sock, payload, strlen(payload), 0, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
+    if (err < 0) {
+        ESP_LOGE(TAG, "Error occurred during sending: errno %d", errno);
+    }
+    ESP_LOGI(TAG, "Confirmation sent");
+
+    ESP_LOGE(TAG, "Shutting down socket sender...");
+    shutdown(sock, 0);
+    close(sock);
+}
+
+static int sta_setup(char *user_password, char *user_ssid)
 {
     const char *ssid     = user_ssid;
     const char *password = user_password;
@@ -172,6 +179,116 @@ static int sta_ap_setup(char *user_password, char *user_ssid, int setup)
 
     return ESP_OK;
 }
+
+
+
+static void wifi_event_handler_ap(void* arg, esp_event_base_t event_base,
+                                    int32_t event_id, void* event_data)
+{
+    if (event_id == WIFI_EVENT_AP_STACONNECTED) {
+        wifi_event_ap_staconnected_t* event = (wifi_event_ap_staconnected_t*) event_data;
+        ESP_LOGI(TAG, "station "MACSTR" join, AID=%d",
+                 MAC2STR(event->mac), event->aid);
+        num_sta_connected++;
+    } else if (event_id == WIFI_EVENT_AP_STADISCONNECTED) {
+        wifi_event_ap_stadisconnected_t* event = (wifi_event_ap_stadisconnected_t*) event_data;
+        ESP_LOGI(TAG, "station "MACSTR" leave, AID=%d",
+                 MAC2STR(event->mac), event->aid);
+        num_sta_connected--;
+        ESP_LOGI(TAG, "number of connections: %d", num_sta_connected);
+        if(num_sta_connected == 0) {
+            sta_setup("123456789", "csi_softap");
+        };
+    }
+}
+
+static int ap_setup(char *password, char *ssid, int max_connection)
+{
+    wifi_config_t wifi_config = {
+        .ap = {
+            .ssid = {*ssid},
+            .ssid_len = strlen(ssid),
+            .max_connection = max_connection,
+            .password = {*password},
+            .channel  = 13,
+            .authmode = WIFI_AUTH_WPA2_PSK
+        },
+    };
+
+    static esp_netif_t *s_netif_ap = NULL;
+
+    if(!s_wifi_event_group){
+        s_wifi_event_group = xEventGroupCreate();
+        ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &wifi_event_handler_ap, NULL));
+        ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &wifi_event_handler_ap, NULL));
+    }
+
+    if (!s_netif_ap) {
+        s_netif_ap = esp_netif_create_default_wifi_ap();
+    }
+
+    s_reconnect = false;
+    strlcpy((char *) wifi_config.ap.ssid, ssid, sizeof(wifi_config.ap.ssid));
+
+    if (password && strlen(password)) {
+        if (strlen(password) < 8) {
+            s_reconnect = true;
+            ESP_LOGE(TAG, "password less than 8");
+            return ESP_FAIL;
+        }
+
+        strlcpy((char *) wifi_config.ap.password, password, sizeof(wifi_config.ap.password));
+    }
+
+    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_AP));
+    ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_AP, &wifi_config));
+
+    ESP_LOGI(TAG, "Starting SoftAP SSID: %s, Password: %s", ssid, password);
+
+    return ESP_OK;
+}
+
+void wifi_csi_raw_cb(void *ctx, wifi_csi_info_t *info)
+{
+    static char buff[2048];
+    size_t len = 0;
+    wifi_pkt_rx_ctrl_t *rx_ctrl = &info->rx_ctrl;
+    static uint32_t s_count = 0;
+
+    if (!s_count) {
+        // ets_printf("type,id,mac,rssi,rate,sig_mode,mcs,bandwidth,smoothing,not_sounding,aggregation,stbc,fec_coding,sgi,noise_floor,ampdu_cnt,channel,secondary_channel,local_timestamp,ant,sig_len,rx_state,len,first_word,data\n");
+        len += snprintf(buff, sizeof(buff),"type,id,mac,rssi,rate,sig_mode,mcs,bandwidth,smoothing,not_sounding,aggregation,stbc,fec_coding,sgi,noise_floor,ampdu_cnt,channel,secondary_channel,local_timestamp,ant,sig_len,rx_state,len,first_word,data\n");
+    }
+
+    len += snprintf(buff + len, sizeof(buff) - len,"CSI_DATA,%d," MACSTR ",%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d",
+               s_count++, MAC2STR(info->mac), rx_ctrl->rssi, rx_ctrl->rate, rx_ctrl->sig_mode,
+               rx_ctrl->mcs, rx_ctrl->cwb, rx_ctrl->smoothing, rx_ctrl->not_sounding,
+               rx_ctrl->aggregation, rx_ctrl->stbc, rx_ctrl->fec_coding, rx_ctrl->sgi,
+               rx_ctrl->noise_floor, rx_ctrl->ampdu_cnt, rx_ctrl->channel, rx_ctrl->secondary_channel,
+               rx_ctrl->timestamp, rx_ctrl->ant, rx_ctrl->sig_len, rx_ctrl->rx_state);
+
+    len += snprintf(buff + len, sizeof(buff) - len, ",%d,%d,\"[", info->len, info->first_word_invalid);
+
+    int i = 0;
+    for (; i < info->len - 1; i++) {
+        len += snprintf(buff + len, sizeof(buff) - len, "%d,", info->buf[i]);
+    }
+    len += snprintf(buff + len, sizeof(buff) - len, "%d",info->buf[i]);
+
+    len += snprintf(buff + len, sizeof(buff) - len, "]\"\n");
+    ets_printf("%s",buff);
+}
+
+static void setup_protocol(void)
+{
+    protocol.started = false;
+    protocol.start_ap_count = 0; 
+    protocol.start_ap = 1;
+    protocol.start_csi_count = 0; 
+    protocol.start_csi = 1;
+    strcpy(protocol.macs.mac_1, "himself");
+}
+
 
 static bool evaluateCommand(char command[]) {
     int condition = 0; //needs to be 2 for value true
@@ -269,6 +386,7 @@ static void wait_csi_enabling(void)
                 if (1) {
                     ESP_LOGI(TAG, "Starting csi procedure");
 
+                    counter = 0;
                     int a = 1;
                     int* cmd_ret = &a;
                     esp_console_run("csi -l 384 -m a8:03:2a:e1:11:b5", cmd_ret);
@@ -379,6 +497,14 @@ static void wifi_radar_cb(const wifi_radar_info_t *info, void *ctx)
         ESP_LOGE(TAG, "Shutting down socket sender...");
         shutdown(sock, 0);
         close(sock);
+
+        vTaskDelay(2000 / portTICK_PERIOD_MS);
+        send_confirmation("192.168.4.1", "csi exchanged");
+
+        vTaskDelay(10000 / portTICK_PERIOD_MS);
+        ap_setup("123456789", "csi_softap_01", 8);
+
+        vTaskDelete(NULL);
     }
 }
 
@@ -441,7 +567,10 @@ void app_main(void)
 
     ESP_ERROR_CHECK(esp_console_start_repl(repl));
 
-    sta_ap_setup("123456789", "csi_softap", 0);
+
+    //setup_protocol();
+
+    sta_setup("123456789", "csi_softap");
 
     wait_csi_enabling();
 }
