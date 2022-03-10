@@ -48,6 +48,8 @@ static int num_sta_connected = 0;
 static int port = 50000;
 static int external_ip = 0;
 
+static int delay_ms = 300000;
+
 
 
 static void wifi_init(void)
@@ -187,25 +189,54 @@ void send_task(char ip_address[], char message[])
     if (err < 0) {
         ESP_LOGE(TAG, "Error occurred during sending: errno %d", errno);
     }
-    ESP_LOGI(TAG, "Confirmation sent");
+    ESP_LOGI(TAG, "message [%s] sent to %s", message, ip_address);
 
     ESP_LOGE(TAG, "Shutting down socket sender...");
     shutdown(sock, 0);
     close(sock);
 }
 
+void send_tasks_for_device(char ip_address[], int device) {
+    char message[25] = "";
+    sprintf(message, "1 .%d", external_ip);
+    send_task(ip_address, message);
+    vTaskDelay(delay_ms / portTICK_PERIOD_MS);
+    if(device < 5) {
+        sprintf(message, "%d .%d", device+1, external_ip);
+        send_task(ip_address, message);
+        vTaskDelay(delay_ms / portTICK_PERIOD_MS);
+        sprintf(message, "%d .%d", device+2, external_ip);
+        send_task(ip_address, message);
+        vTaskDelay(delay_ms / portTICK_PERIOD_MS);
+    }else if(device == 5){
+        sprintf(message, "%d .%d", device+1, external_ip);
+        send_task(ip_address, message);
+        vTaskDelay(delay_ms / portTICK_PERIOD_MS);
+        sprintf(message, "2 .%d", external_ip);
+        send_task(ip_address, message);
+        vTaskDelay(delay_ms / portTICK_PERIOD_MS);
+    }else if(device == 6) {
+        sprintf(message, "2 .%d", external_ip);
+        send_task(ip_address, message);
+        vTaskDelay(delay_ms / portTICK_PERIOD_MS);
+        sprintf(message, "3 .%d", external_ip);
+        send_task(ip_address, message);
+        vTaskDelay(delay_ms / portTICK_PERIOD_MS);
+    }
+}
+
 void send_tasks(void)
 {
-    char storage[25] = "";
-    char storage2[25] = "";
-    for(int i = 0; i < num_sta_connected; i++) {
-        sprintf(storage, "192.168.4.%d", i+2);
-        if(i+2 == external_ip) {
-            send_task(storage, "Inititalizing csi exchange");
-        }else {
-            sprintf(storage2, "csi -i -e .%d -ip", external_ip);
-            send_task(storage, storage2);
-            vTaskDelay(20000 / portTICK_PERIOD_MS);
+        char storage[25] = "";
+
+        sprintf(storage, "192.168.4.%d", external_ip);
+        send_task(storage, "Inititalizing csi exchange");
+        vTaskDelay(10000 / portTICK_PERIOD_MS);
+        for(int i = 0; i < num_sta_connected; i++) {
+            sprintf(storage, "192.168.4.%d", i+2);
+            if(i+2 != external_ip) {
+                send_tasks_for_device(storage, i+2);
+            }else {
         }
     }
 }

@@ -49,18 +49,10 @@ static int port = 50000;
 static char ip_address[15] = "";
 static int external_ip = 0;
 
-//structure for the static network protocol to dermine when the station is 
-//an access point and when it initializes a csi exchange
-struct static_protocol{
-    bool started;
-    int start_ap_count;
-    int start_ap;
-    int start_csi_count;
-    int start_csi;
-    struct macs{
-        char mac_1[16];
-    } macs;
-} protocol = {};
+static int a = 1;
+static int* cmd_ret = &a;
+
+static int step_count = 0;
 
 static void wifi_init(void)
 {
@@ -108,31 +100,6 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
     }  else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_AP_STACONNECTED) {
         ESP_LOGI(TAG, "STA Connecting to the AP again...");
     }
-}
-
-void send_confirmation(char ap_address[], char message[]) 
-{
-    struct sockaddr_in dest_addr;
-    dest_addr.sin_addr.s_addr = inet_addr(ap_address);
-    dest_addr.sin_family = AF_INET;
-    dest_addr.sin_port = htons(port);
-    int addr_family = AF_INET;
-    int ip_protocol = IPPROTO_IP;
-
-    int sock = socket(addr_family, SOCK_DGRAM, ip_protocol);
-
-    char *payload[100];
-    strcpy(payload, message);
-
-    int err = sendto(sock, payload, strlen(payload), 0, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
-    if (err < 0) {
-        ESP_LOGE(TAG, "Error occurred during sending: errno %d", errno);
-    }
-    ESP_LOGI(TAG, "Confirmation sent");
-
-    ESP_LOGE(TAG, "Shutting down socket sender...");
-    shutdown(sock, 0);
-    close(sock);
 }
 
 static int sta_setup(char *user_password, char *user_ssid)
@@ -198,6 +165,7 @@ static void wifi_event_handler_ap(void* arg, esp_event_base_t event_base,
         ESP_LOGI(TAG, "number of connections: %d", num_sta_connected);
         if(num_sta_connected == 0) {
             sta_setup("123456789", "csi_softap");
+            step_count = 0;
         };
     }
 }
@@ -279,49 +247,6 @@ void wifi_csi_raw_cb(void *ctx, wifi_csi_info_t *info)
     ets_printf("%s",buff);
 }
 
-static void setup_protocol(void)
-{
-    protocol.started = false;
-    protocol.start_ap_count = 0; 
-    protocol.start_ap = 1;
-    protocol.start_csi_count = 0; 
-    protocol.start_csi = 1;
-    strcpy(protocol.macs.mac_1, "himself");
-}
-
-
-static bool evaluateCommand(char command[]) {
-    int condition = 0; //needs to be 2 for value true
-    for(int i = 0; i < strlen(command); i++) {
-        if(i == 0) {
-            if(command[i] != 'c' || command[i+1] != 's' || command[i+2] != 'i') {
-                return false;
-            }else {
-                condition++;
-            }
-        }else if(command[i] == '-') {
-            if(command[i+1] != 'e' || command[i+1] != 'i') {
-                return false;
-            }else {
-                condition++;
-            }
-        }else if(command[i] == '.') {
-            int temp = i+1;
-            int index = 0;
-            char storage[5] = "";
-            while(isdigit(command[temp]) && temp < strlen(command)) {
-                storage[index] = command[temp];
-                temp++;
-                index++;
-            }
-            external_ip = atoi(storage);
-            sprintf(ip_address, "192.168.4.%d", external_ip);
-            return true;
-        }
-    }
-    return false;
-}
-
 static void wait_csi_enabling(void)
 {
     char rx_buffer[128];
@@ -387,10 +312,12 @@ static void wait_csi_enabling(void)
                     ESP_LOGI(TAG, "Starting csi procedure");
 
                     counter = 0;
-                    int a = 1;
-                    int* cmd_ret = &a;
+                    if(step_count == 0) {
+                        step_count++;
+                    }
+
                     esp_console_run("csi -l 384 -m a8:03:2a:e1:11:b5", cmd_ret);
-                    esp_console_run("ping 192.168.4.1", cmd_ret);
+                    esp_console_run("ping 192.168.4.1 -c 9 -i 0.001", cmd_ret);
                     
                 } else {
                     ESP_LOGI(TAG, "Command unknown");
@@ -466,6 +393,12 @@ static void wifi_radar_cb(const wifi_radar_info_t *info, void *ctx)
     counter++;
     //send csi data to external device (pc, cellphone, etc.)
     if(counter == 9) {
+        esp_console_run("ping 192.168.4.1 -a", cmd_ret);
+        ESP_LOGI(TAG, "%d", step_count);
+        if(step_count == 2) {
+            vTaskDelay(50000 / portTICK_PERIOD_MS);
+            esp_console_run("sta csi_softap 123456789", cmd_ret);
+        }
         counter = 0;
         struct sockaddr_in dest_addr;
         dest_addr.sin_addr.s_addr = inet_addr(ip_address);
@@ -499,11 +432,23 @@ static void wifi_radar_cb(const wifi_radar_info_t *info, void *ctx)
         close(sock);
 
         vTaskDelay(2000 / portTICK_PERIOD_MS);
-        send_confirmation("192.168.4.1", "csi exchanged");
 
         vTaskDelay(10000 / portTICK_PERIOD_MS);
-        ap_setup("123456789", "csi_softap_01", 8);
+        
+        if(step_count == 2) {
+            ESP_LOGI(TAG, "Setting up AP csi_softap_02");
+            esp_console_run("ap csi_softap_02 123456789", cmd_ret);
+            step_count++;
+        }
+        if(step_count == 1) {
+            esp_console_run("sta csi_softap_01 123456789", cmd_ret);
 
+            vTaskDelay(10000 / portTICK_PERIOD_MS);
+
+            esp_console_run("csi -l 384 -m a8:03:2a:e1:11:bd", cmd_ret);
+            esp_console_run("ping 192.168.4.1 -c 9 -i 0.001", cmd_ret);
+            step_count++;
+        }
         vTaskDelete(NULL);
     }
 }
@@ -567,10 +512,7 @@ void app_main(void)
 
     ESP_ERROR_CHECK(esp_console_start_repl(repl));
 
-
-    //setup_protocol();
-
-    sta_setup("123456789", "csi_softap");
+    esp_console_run("sta csi_softap 123456789", cmd_ret);
 
     wait_csi_enabling();
 }
