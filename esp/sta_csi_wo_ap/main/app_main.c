@@ -385,7 +385,7 @@ static void wifi_radar_cb(const wifi_radar_info_t *info, void *ctx)
 
     counter++;
     //send csi data to external device (pc, cellphone, etc.)
-    if(counter == 9) {
+    if(counter == 1) {
         counter = 0;
 
         char *payload[100];
