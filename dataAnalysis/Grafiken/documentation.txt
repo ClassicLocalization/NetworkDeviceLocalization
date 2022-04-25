@@ -1,0 +1,19 @@
+03:
+-mid-air
+-from 1.25m onwards through a wall
+-some human movement
+-different room
+
+01:
+-on the floor
+-heat sink at 2.5m
+-minimal human movement
+
+02:
+-on the floor
+-no obstacles between station and access point
+-minimal human movement
+-same room as relevantData but different positioning
+
+1-3:
+-all tests represented in diagram

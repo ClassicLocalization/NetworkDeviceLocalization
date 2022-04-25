@@ -1,5 +1,6 @@
 from socket import socket, AF_INET, SOCK_DGRAM
 import time
+import csv
 
 # for closing the socket
 def close(s):
@@ -94,7 +95,37 @@ def start_protocol():
             time.sleep(TIME_DELAY)
         time.sleep(TIME_DELAY)
 
+def get_single_csi(ip, iterations):
+    PORT = 50000
+    path = r"C:\Users\Superadmin\Desktop\Bachelorarbeit\ZeroMQ-Testingground\Python\relevantData_diffRoom.csv"
 
-#start_session(5)
-start_protocol()
+    s = socket(AF_INET, SOCK_DGRAM) #create UDP socket
+    s.bind(('', PORT))
+
+    some_data = "1 .4"
+    for i in range(iterations):
+        s.sendto(some_data.encode ('utf-8'), (ip, PORT))
+        print ("sent service announcement")
+        data, addr = s.recvfrom(1024) #wait for a packet
+        print("got service announcement from", data)
+        parsed_content = "2,5" + data.decode("utf-8")
+
+        with open (path, 'a', newline='', encoding='utf-8') as f:
+            # create the csv writer
+            writer = csv.writer (f)
+            # write a row to the csv file
+            writer.writerow ([parsed_content])
+        time.sleep (10)
+
+
+def main():
+    # start_session(5)
+    # start_protocol()
+    get_single_csi ("192.168.4.2", 25)
+
+
+if __name__ == "__main__":
+    main()
+
+
 

@@ -2,21 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b460def3-291f-46ef-abae-b256fb51f038" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/../../Bachelorarbeit.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../../Bachelorarbeit.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Discovery.py" beforeDir="false" afterPath="$PROJECT_DIR$/Discovery.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../esp/ap_csi/build/.bin_timestamp" beforeDir="false" afterPath="$PROJECT_DIR$/../../esp/ap_csi/build/.bin_timestamp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../esp/ap_csi/build/.ninja_deps" beforeDir="false" afterPath="$PROJECT_DIR$/../../esp/ap_csi/build/.ninja_deps" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../esp/ap_csi/build/.ninja_log" beforeDir="false" afterPath="$PROJECT_DIR$/../../esp/ap_csi/build/.ninja_log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../esp/ap_csi/build/CMakeFiles/git-data/head-ref" beforeDir="false" afterPath="$PROJECT_DIR$/../../esp/ap_csi/build/CMakeFiles/git-data/head-ref" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../esp/ap_csi/build/ap_csi.bin" beforeDir="false" afterPath="$PROJECT_DIR$/../../esp/ap_csi/build/ap_csi.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../esp/ap_csi/build/ap_csi.elf" beforeDir="false" afterPath="$PROJECT_DIR$/../../esp/ap_csi/build/ap_csi.elf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../esp/ap_csi/build/ap_csi.map" beforeDir="false" afterPath="$PROJECT_DIR$/../../esp/ap_csi/build/ap_csi.map" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../esp/ap_csi/build/bootloader/.ninja_log" beforeDir="false" afterPath="$PROJECT_DIR$/../../esp/ap_csi/build/bootloader/.ninja_log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../esp/ap_csi/build/build.ninja" beforeDir="false" afterPath="$PROJECT_DIR$/../../esp/ap_csi/build/build.ninja" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../esp/ap_csi/build/compile_commands.json" beforeDir="false" afterPath="$PROJECT_DIR$/../../esp/ap_csi/build/compile_commands.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../esp/ap_csi/build/esp-idf/app_update/libapp_update.a" beforeDir="false" afterPath="$PROJECT_DIR$/../../esp/ap_csi/build/esp-idf/app_update/libapp_update.a" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../esp/ap_csi/build/esp-idf/main/libmain.a" beforeDir="false" afterPath="$PROJECT_DIR$/../../esp/ap_csi/build/esp-idf/main/libmain.a" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../esp/ap_csi/main/app_main.c" beforeDir="false" afterPath="$PROJECT_DIR$/../../esp/ap_csi/main/app_main.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../esp/sta_csi_wo_ap/main/app_main.c" beforeDir="false" afterPath="$PROJECT_DIR$/../../esp/sta_csi_wo_ap/main/app_main.c" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -74,8 +62,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Discovery.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="6">
-              <caret line="40" column="22" selection-start-line="40" selection-start-column="22" selection-end-line="40" selection-end-column="22" />
+            <state relative-caret-position="416">
+              <caret line="110" column="29" selection-start-line="110" selection-start-column="29" selection-end-line="110" selection-end-column="29" />
               <folding>
                 <element signature="e#0#46#0" expanded="true" />
               </folding>
@@ -119,8 +107,9 @@
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds">
-    <option name="x" value="1924" />
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="x" value="-134" />
+    <option name="y" value="-12" />
     <option name="width" value="1936" />
     <option name="height" value="1047" />
   </component>
@@ -179,6 +168,34 @@
       </list>
     </option>
   </component>
+  <component name="RunManager">
+    <configuration name="Discovery" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="Python" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Discovery.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.Discovery" />
+      </list>
+    </recent_temporary>
+  </component>
   <component name="SvnConfiguration">
     <configuration />
   </component>
@@ -193,20 +210,20 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="1924" y="0" width="1936" height="1047" extended-state="0" />
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.24920969" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Run" order="2" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.3261105" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Version Control" order="7" />
-      <window_info active="true" anchor="bottom" id="Terminal" order="8" visible="true" weight="0.9070022" />
+      <window_info anchor="bottom" id="Terminal" order="8" weight="0.22647703" />
       <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
       <window_info anchor="bottom" id="Python Console" order="10" weight="0.32936078" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
@@ -261,8 +278,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Discovery.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="6">
-          <caret line="40" column="22" selection-start-line="40" selection-start-column="22" selection-end-line="40" selection-end-column="22" />
+        <state relative-caret-position="416">
+          <caret line="110" column="29" selection-start-line="110" selection-start-column="29" selection-end-line="110" selection-end-column="29" />
           <folding>
             <element signature="e#0#46#0" expanded="true" />
           </folding>
