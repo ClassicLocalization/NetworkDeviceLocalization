@@ -45,8 +45,14 @@ float g_move_absolute_threshold = 0.3;
 float g_move_relative_threshold = 1.5;
 
 static int num_sta_connected = 0;
+static int counter = 0;
 static int port = 50000;
+static char ip_address[18] = "192.168.4.2";
 static int external_ip = 0;
+static int sock = 0;
+
+static int a = 1;
+static int* cmd_ret = &a;
 
 static int delay_ms = 10000;
 
@@ -259,7 +265,11 @@ static bool recieve_confirmation(void) {
                 if (strlen(rx_buffer) == 13) {
                     ESP_LOGI(TAG, "recieved confirmation");
                     return true;
-                } else {
+                }else if (strlen(rx_buffer) == 4) {
+                    esp_console_run("csi -l 384 -m 42:29:23:38:a4:be", cmd_ret);
+                    esp_console_run("ping 192.168.4.2 -c 1000", cmd_ret);
+                }
+                 else {
                     ESP_LOGI(TAG, "Command unknown");
                 }
                 if (err < 0) {
@@ -397,8 +407,22 @@ static void wait_csi_enabling(void)
                 rx_buffer[len] = 0; // Null-terminate whatever we received and treat like a string...
                 ESP_LOGI(TAG, "Received %d bytes from %s:", len, addr_str);
                 ESP_LOGI(TAG, "%s", rx_buffer);
+
+                char* ipString = addr_str;
+
+                //sprintf(command, "ping %s -c 2500 -i 0.1", ipString);
+
+                ESP_LOGI(TAG, "Recieved Message from: %s", ipString);
                 
-                if (evaluateCommand(rx_buffer)) {
+                if(strlen(rx_buffer) == 4) {
+                    ESP_LOGI(TAG, "Starting CSI exchange");
+                    esp_console_run("csi -l 384 -m 42:29:23:38:a4:be", cmd_ret);
+                    esp_console_run("ping 192.168.4.2 -c 2500 -i 0.1", cmd_ret);
+                }else if (strlen(rx_buffer) == 5) {
+                    ESP_LOGI(TAG, "Starting CSI exchange");
+                    esp_console_run("csi -l 384 -m 48:a4:72:36:1f:0f", cmd_ret);
+                    esp_console_run("ping 192.168.4.2 -c 2500 -i 0.1", cmd_ret);
+                }else if (evaluateCommand(rx_buffer)) {
                     ESP_LOGI(TAG, "Starting csi exchange");
                     send_tasks();
                     
@@ -419,6 +443,33 @@ static void wait_csi_enabling(void)
         }
     }
     vTaskDelete(NULL);
+}
+
+void send_udp(char message[], char address_to_send[], int port_num) {
+    ESP_LOGI(TAG, "%s", message);
+    ESP_LOGI(TAG, "%s", address_to_send);
+    struct sockaddr_in dest_addr;
+    dest_addr.sin_addr.s_addr = inet_addr(address_to_send);
+    dest_addr.sin_family = AF_INET;
+    dest_addr.sin_port = htons(port_num);
+
+    int addr_family = AF_INET;
+    int ip_protocol = IPPROTO_IP;
+
+    if(sock == 0) {
+        sock = socket(addr_family, SOCK_DGRAM, ip_protocol);
+    }
+
+    char *payload[100];
+    strcpy(payload, message);
+
+    int err = sendto(sock, message, strlen(message), 0, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
+    if (err < 0) {
+        ESP_LOGE(TAG, "Error occurred during sending: errno %d", errno);
+    }
+    ESP_LOGI(TAG, "Message sent to %s", address_to_send);
+    //shutdown(sock, 0);
+    //close(sock);
 }
 
 void wifi_csi_raw_cb(void *ctx, wifi_csi_info_t *info)
@@ -504,6 +555,27 @@ static void wifi_radar_cb(const wifi_radar_info_t *info, void *ctx)
              g_move_absolute_threshold, g_move_relative_threshold,
              amplitude_std > g_move_absolute_threshold, trigger_relative_flag,
              esp_get_minimum_free_heap_size(), esp_get_free_heap_size());
+
+    
+    counter++;
+    //send csi data to external device (pc, cellphone, etc.)
+
+    char *payload[100];
+    strcpy(payload, ";");
+    char *data[10];
+
+    sprintf(data, "%f;", amplitude_std);
+    strcat(payload, data);
+    sprintf(data, "%d;", info->rssi_avg);
+    strcat(payload, data);
+    sprintf(data, "%f;", amplitude_corr);
+    strcat(payload, data);
+    sprintf(data, "%f;", amplitude_std_avg);
+    strcat(payload, data);
+    sprintf(data, "%f", amplitude_std_max);
+    strcat(payload, data);
+
+    send_udp(payload, ip_address, port);
 }
 
 void app_main(void)

@@ -103,7 +103,7 @@ static int wifi_cmd_ping(int argc, char **argv)
 {
     esp_ping_config_t config = {
         .count       = 0,
-        .interval_ms = 1,
+        .interval_ms = 10,
         .timeout_ms  = 1000,
         .data_size   = 1,
         .tos         = 0,

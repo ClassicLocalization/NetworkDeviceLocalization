@@ -1,4 +1,4 @@
-/* * Data converted from C:/Users/Superadmin/Desktop/Bachelorarbeit/esp/sta_csi/build/esp-idf/mbedtls/x509_crt_bundle
+/* * Data converted from C:/Users/alex_/Desktop/Bachelorarbeit/NetworkDeviceLocalization/esp/sta_csi/build/esp-idf/mbedtls/x509_crt_bundle
  */
 .data
 .section .rodata.embedded

@@ -46,7 +46,7 @@ static EventGroupHandle_t s_wifi_event_group;
 static int num_sta_connected = 0;
 static int counter = 0;
 static int port = 50000;
-static char ip_address[15] = "";
+static char ip_address[18] = "192.168.4.3";
 static int external_ip = 0;
 
 static int a = 1;
@@ -147,6 +147,33 @@ static int sta_setup(char *user_password, char *user_ssid)
     return ESP_OK;
 }
 
+void send_udp(char message[], char address_to_send[], int port_num) {
+    ESP_LOGI(TAG, "%s", message);
+    ESP_LOGI(TAG, "%s", address_to_send);
+    struct sockaddr_in dest_addr;
+    dest_addr.sin_addr.s_addr = inet_addr(address_to_send);
+    dest_addr.sin_family = AF_INET;
+    dest_addr.sin_port = htons(port_num);
+
+    int addr_family = AF_INET;
+    int ip_protocol = IPPROTO_IP;
+
+    int sock = socket(addr_family, SOCK_DGRAM, ip_protocol);
+
+    char *payload[100];
+    strcpy(payload, message);
+
+    int err = sendto(sock, payload, strlen(payload), 0, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
+    if (err < 0) {
+        ESP_LOGE(TAG, "Error occurred during sending: errno %d", errno);
+    }
+    ESP_LOGI(TAG, "Message sent to %s", address_to_send);
+
+    ESP_LOGE(TAG, "Shutting down socket sender...");
+    shutdown(sock, 0);
+    close(sock);
+}
+
 void wifi_csi_raw_cb(void *ctx, wifi_csi_info_t *info)
 {
     static char buff[2048];
@@ -176,6 +203,13 @@ void wifi_csi_raw_cb(void *ctx, wifi_csi_info_t *info)
 
     len += snprintf(buff + len, sizeof(buff) - len, "]\"\n");
     ets_printf("%s",buff);
+
+    char *payload[100];
+    strcpy(payload, "Testing message");
+
+    send_udp(payload, ip_address, port);
+    esp_console_run("reset", cmd_ret);
+    
 }
 
 static bool valid_message(char message[]) 
@@ -201,7 +235,7 @@ static bool valid_message(char message[])
 static void start_csi_exchange(void) 
 {
     if(step == 1) {
-        esp_console_run("csi -l 384 -m a8:03:2a:e1:11:b5", cmd_ret);
+        esp_console_run("csi -l 384 -m a8:03:2a:e1:11:b5 -o", cmd_ret);
         esp_console_run("ping 192.168.4.1 -c 9 -i 0.001", cmd_ret);
     }else if(step == 2) {
         esp_console_run("csi -l 384 -m a8:03:2a:e1:11:bc", cmd_ret);
@@ -306,31 +340,6 @@ static void wait_csi_enabling(void)
     vTaskDelete(NULL);
 }
 
-void send_udp(char message[], char address_to_send[], int port_num) {
-    struct sockaddr_in dest_addr;
-    dest_addr.sin_addr.s_addr = inet_addr(address_to_send);
-    dest_addr.sin_family = AF_INET;
-    dest_addr.sin_port = htons(port_num);
-
-    int addr_family = AF_INET;
-    int ip_protocol = IPPROTO_IP;
-
-    int sock = socket(addr_family, SOCK_DGRAM, ip_protocol);
-
-    char *payload[100];
-    strcpy(payload, message);
-
-    int err = sendto(sock, payload, strlen(payload), 0, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
-    if (err < 0) {
-        ESP_LOGE(TAG, "Error occurred during sending: errno %d", errno);
-    }
-    ESP_LOGI(TAG, "Message sent to %s", address_to_send);
-
-    ESP_LOGE(TAG, "Shutting down socket sender...");
-    shutdown(sock, 0);
-    close(sock);
-}
-
 
 static void wifi_radar_cb(const wifi_radar_info_t *info, void *ctx)
 {
@@ -389,12 +398,12 @@ static void wifi_radar_cb(const wifi_radar_info_t *info, void *ctx)
         counter = 0;
 
         char *payload[100];
-        strcpy(payload, "std_avg: ");
         char *data[10];
+        strcpy(payload, ";");
 
         sprintf(data, "%f", amplitude_std);
         strcat(payload, data);
-        strcat(payload, ", rssi: ");
+        strcat(payload, ";");
 
         sprintf(data, "%d", info->rssi_avg);
         strcat(payload, data);

@@ -46,13 +46,13 @@ static EventGroupHandle_t s_wifi_event_group;
 static int num_sta_connected = 0;
 static int counter = 0;
 static int port = 50000;
-static char ip_address[15] = "";
+static char ip_address[18] = "192.168.4.3";
 static int external_ip = 0;
 
 static int a = 1;
 static int* cmd_ret = &a;
 
-static int step_count = 0;
+static int step = 0;
 
 static void wifi_init(void)
 {
@@ -147,73 +147,31 @@ static int sta_setup(char *user_password, char *user_ssid)
     return ESP_OK;
 }
 
+void send_udp(char message[], char address_to_send[], int port_num) {
+    ESP_LOGI(TAG, "%s", message);
+    ESP_LOGI(TAG, "%s", address_to_send);
+    struct sockaddr_in dest_addr;
+    dest_addr.sin_addr.s_addr = inet_addr(address_to_send);
+    dest_addr.sin_family = AF_INET;
+    dest_addr.sin_port = htons(port_num);
 
+    int addr_family = AF_INET;
+    int ip_protocol = IPPROTO_IP;
 
-static void wifi_event_handler_ap(void* arg, esp_event_base_t event_base,
-                                    int32_t event_id, void* event_data)
-{
-    if (event_id == WIFI_EVENT_AP_STACONNECTED) {
-        wifi_event_ap_staconnected_t* event = (wifi_event_ap_staconnected_t*) event_data;
-        ESP_LOGI(TAG, "station "MACSTR" join, AID=%d",
-                 MAC2STR(event->mac), event->aid);
-        num_sta_connected++;
-    } else if (event_id == WIFI_EVENT_AP_STADISCONNECTED) {
-        wifi_event_ap_stadisconnected_t* event = (wifi_event_ap_stadisconnected_t*) event_data;
-        ESP_LOGI(TAG, "station "MACSTR" leave, AID=%d",
-                 MAC2STR(event->mac), event->aid);
-        num_sta_connected--;
-        ESP_LOGI(TAG, "number of connections: %d", num_sta_connected);
-        if(num_sta_connected == 0) {
-            sta_setup("123456789", "csi_softap");
-            step_count = 0;
-        };
+    int sock = socket(addr_family, SOCK_DGRAM, ip_protocol);
+
+    char *payload[100];
+    strcpy(payload, message);
+
+    int err = sendto(sock, message, strlen(message), 0, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
+    if (err < 0) {
+        ESP_LOGE(TAG, "Error occurred during sending: errno %d", errno);
     }
-}
+    ESP_LOGI(TAG, "Message sent to %s", address_to_send);
 
-static int ap_setup(char *password, char *ssid, int max_connection)
-{
-    wifi_config_t wifi_config = {
-        .ap = {
-            .ssid = {*ssid},
-            .ssid_len = strlen(ssid),
-            .max_connection = max_connection,
-            .password = {*password},
-            .channel  = 13,
-            .authmode = WIFI_AUTH_WPA2_PSK
-        },
-    };
-
-    static esp_netif_t *s_netif_ap = NULL;
-
-    if(!s_wifi_event_group){
-        s_wifi_event_group = xEventGroupCreate();
-        ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &wifi_event_handler_ap, NULL));
-        ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &wifi_event_handler_ap, NULL));
-    }
-
-    if (!s_netif_ap) {
-        s_netif_ap = esp_netif_create_default_wifi_ap();
-    }
-
-    s_reconnect = false;
-    strlcpy((char *) wifi_config.ap.ssid, ssid, sizeof(wifi_config.ap.ssid));
-
-    if (password && strlen(password)) {
-        if (strlen(password) < 8) {
-            s_reconnect = true;
-            ESP_LOGE(TAG, "password less than 8");
-            return ESP_FAIL;
-        }
-
-        strlcpy((char *) wifi_config.ap.password, password, sizeof(wifi_config.ap.password));
-    }
-
-    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_AP));
-    ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_AP, &wifi_config));
-
-    ESP_LOGI(TAG, "Starting SoftAP SSID: %s, Password: %s", ssid, password);
-
-    return ESP_OK;
+    ESP_LOGE(TAG, "Shutting down socket sender...");
+    shutdown(sock, 0);
+    close(sock);
 }
 
 void wifi_csi_raw_cb(void *ctx, wifi_csi_info_t *info)
@@ -245,6 +203,70 @@ void wifi_csi_raw_cb(void *ctx, wifi_csi_info_t *info)
 
     len += snprintf(buff + len, sizeof(buff) - len, "]\"\n");
     ets_printf("%s",buff);
+
+    char *payload[256];
+    strcpy(payload, "");
+
+    char *data[8];
+    sprintf(data, "%d;%d;%d", rx_ctrl->rssi, rx_ctrl->noise_floor, rx_ctrl->sig_len);
+    strcat(payload, data);
+
+    for(int i = 32; i < 63; i++) {
+        sprintf(data, ";%d", info->buf[i]);
+        strcat(payload, data);
+    }
+
+    send_udp(payload, ip_address, port);
+
+    counter++;
+    if(counter==50) {
+        esp_console_run("reset", cmd_ret);
+    }
+    
+}
+
+static bool valid_message(char message[]) 
+{
+    step = message[0] - '0';
+
+    if(strlen(message) == 4) {
+        external_ip = message[3] - '0';
+    }else if(strlen(message) == 5) {
+        char storage[5] = "";
+        storage[0] = message[3];
+        storage[1] = message[4];
+        external_ip = atoi(storage);
+    }else if(strlen(message) == 12) {
+        esp_console_run("reset", cmd_ret);
+    }else {
+        return false;
+    }
+
+    return true;
+}
+
+static void start_csi_exchange(void) 
+{
+    if(step == 1) {
+        //esp_console_run("csi -l 384 -m 42:29:23:38:a4:be", cmd_ret);
+        esp_console_run("csi -l 384 -m a8:03:2a:e1:11:b5", cmd_ret);
+        esp_console_run("ping 192.168.4.1 -c 1000 -i 0.01", cmd_ret);
+    }else if(step == 2) {
+        esp_console_run("csi -l 384 -m a8:03:2a:e1:11:bc", cmd_ret);
+        esp_console_run("ping 192.168.4.2 -c 9 -i 0.001", cmd_ret);
+    }else if(step == 3) {
+        esp_console_run("csi -l 384 -m a8:03:2a:e1:11:90", cmd_ret);
+        esp_console_run("ping 192.168.4.3 -c 9 -i 0.001", cmd_ret);
+    }else if(step == 4) {
+        esp_console_run("csi -l 384 -m a8:03:2a:e1:0f:b8", cmd_ret);
+        esp_console_run("ping 192.168.4.4 -c 9 -i 0.001", cmd_ret);
+    }else if(step == 5) {
+        esp_console_run("csi -l 384 -m a8:03:2a:e1:0f:c4", cmd_ret);
+        esp_console_run("ping 192.168.4.5 -c 9 -i 0.001", cmd_ret);
+    }else if(step == 6) {
+        esp_console_run("csi -l 384 -m a8:03:2a:e1:0f:b0", cmd_ret);
+        esp_console_run("ping 192.168.4.5 -c 9 -i 0.001", cmd_ret);
+    }
 }
 
 static void wait_csi_enabling(void)
@@ -308,16 +330,10 @@ static void wait_csi_enabling(void)
                 ESP_LOGI(TAG, "Received %d bytes from %s:", len, addr_str);
                 ESP_LOGI(TAG, "%s", rx_buffer);
                 
-                if (1) {
+                if (valid_message(rx_buffer)) {
                     ESP_LOGI(TAG, "Starting csi procedure");
-
                     counter = 0;
-                    if(step_count == 0) {
-                        step_count++;
-                    }
-
-                    esp_console_run("csi -l 384 -m a8:03:2a:e1:11:b5", cmd_ret);
-                    esp_console_run("ping 192.168.4.1 -c 9 -i 0.001", cmd_ret);
+                    start_csi_exchange();
                     
                 } else {
                     ESP_LOGI(TAG, "Command unknown");
@@ -392,64 +408,26 @@ static void wifi_radar_cb(const wifi_radar_info_t *info, void *ctx)
 
     counter++;
     //send csi data to external device (pc, cellphone, etc.)
-    if(counter == 9) {
-        esp_console_run("ping 192.168.4.1 -a", cmd_ret);
-        ESP_LOGI(TAG, "%d", step_count);
-        if(step_count == 2) {
-            vTaskDelay(50000 / portTICK_PERIOD_MS);
-            esp_console_run("sta csi_softap 123456789", cmd_ret);
-        }
-        counter = 0;
-        struct sockaddr_in dest_addr;
-        dest_addr.sin_addr.s_addr = inet_addr(ip_address);
-        dest_addr.sin_family = AF_INET;
-        dest_addr.sin_port = htons(port);
 
-        int addr_family = AF_INET;
-        int ip_protocol = IPPROTO_IP;
+    char *payload[100];
+    strcpy(payload, ";");
+    char *data[10];
 
-        int sock = socket(addr_family, SOCK_DGRAM, ip_protocol);
+    sprintf(data, "%f;", amplitude_std);
+    strcat(payload, data);
+    sprintf(data, "%d;", info->rssi_avg);
+    strcat(payload, data);
+    sprintf(data, "%f;", amplitude_corr);
+    strcat(payload, data);
+    sprintf(data, "%f;", amplitude_std_avg);
+    strcat(payload, data);
+    sprintf(data, "%f", amplitude_std_max);
+    strcat(payload, data);
 
-        char *payload[100];
-        strcpy(payload, "std_avg: ");
-        char *data[10];
+    send_udp(payload, ip_address, port);
 
-        sprintf(data, "%f", amplitude_std);
-        strcat(payload, data);
-        strcat(payload, ", rssi: ");
-
-        sprintf(data, "%d", info->rssi_avg);
-        strcat(payload, data);
-
-        int err = sendto(sock, payload, strlen(payload), 0, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
-        if (err < 0) {
-            ESP_LOGE(TAG, "Error occurred during sending: errno %d", errno);
-        }
-        ESP_LOGI(TAG, "CSI data sent.");
-
-        ESP_LOGE(TAG, "Shutting down socket sender...");
-        shutdown(sock, 0);
-        close(sock);
-
-        vTaskDelay(2000 / portTICK_PERIOD_MS);
-
-        vTaskDelay(10000 / portTICK_PERIOD_MS);
-        
-        if(step_count == 2) {
-            ESP_LOGI(TAG, "Setting up AP csi_softap_02");
-            esp_console_run("ap csi_softap_02 123456789", cmd_ret);
-            step_count++;
-        }
-        if(step_count == 1) {
-            esp_console_run("sta csi_softap_01 123456789", cmd_ret);
-
-            vTaskDelay(10000 / portTICK_PERIOD_MS);
-
-            esp_console_run("csi -l 384 -m a8:03:2a:e1:11:bd", cmd_ret);
-            esp_console_run("ping 192.168.4.1 -c 9 -i 0.001", cmd_ret);
-            step_count++;
-        }
-        vTaskDelete(NULL);
+    if(counter == 100) {
+       esp_console_run("reset", cmd_ret);
     }
 }
 
