@@ -1,5 +1,5 @@
 import socket
-UDP_IP = '192.168.178.69'
+UDP_IP = '192.168.178.58'
 UDP_PORT = 50000
 BUFFER_SIZE = 1024
 MESSAGE = "Message from PC"

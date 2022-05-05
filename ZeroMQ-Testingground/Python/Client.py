@@ -11,7 +11,7 @@ context = zmq.Context()
 #  Socket to talk to server
 print("Connecting to server…")
 socket = context.socket(zmq.REQ)
-socket.connect("tcp://192.168.178.68:50000")
+socket.connect("udp://192.168.178.68:50000")
 
 #  Do infinite requests, waiting each time for a response
 request = 0

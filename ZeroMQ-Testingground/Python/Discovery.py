@@ -96,7 +96,7 @@ def start_protocol():
         time.sleep(TIME_DELAY)
 
 def get_single_csi(ip, iterations):
-    PORT = 50000
+    PORT = 5000
     path = r"C:\Users\Superadmin\Desktop\Bachelorarbeit\ZeroMQ-Testingground\Python\relevantData_diffRoom.csv"
 
     s = socket(AF_INET, SOCK_DGRAM) #create UDP socket
@@ -115,13 +115,13 @@ def get_single_csi(ip, iterations):
             writer = csv.writer (f)
             # write a row to the csv file
             writer.writerow ([parsed_content])
-        time.sleep (10)
+        time.sleep(10)
 
 
 def main():
     # start_session(5)
     # start_protocol()
-    get_single_csi ("192.168.4.2", 25)
+    get_single_csi ("192.168.178.58", 25)
 
 
 if __name__ == "__main__":
