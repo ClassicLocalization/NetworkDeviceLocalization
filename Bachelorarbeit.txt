@@ -37,3 +37,9 @@ Isomaps (wireless sensor network)
 https://www.jabref.org/ Reference Manager for BA
 
 git bisect
+
+https://www.youtube.com/watch?v=-la3q9d7AKQ&list=PLLssT5z_DsK-h9vYZkQkYNWcItqhlRJLN&index=33
+
+OFDM - ESP32
+
+ESP32- std & corellation
