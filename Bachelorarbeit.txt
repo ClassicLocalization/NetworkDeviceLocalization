@@ -43,3 +43,5 @@ https://www.youtube.com/watch?v=-la3q9d7AKQ&list=PLLssT5z_DsK-h9vYZkQkYNWcItqhlR
 OFDM - ESP32
 
 ESP32- std & corellation
+
+accelometer, büro

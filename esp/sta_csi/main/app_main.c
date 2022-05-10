@@ -250,7 +250,7 @@ static void start_csi_exchange(void)
     if(step == 1) {
         //esp_console_run("csi -l 384 -m 42:29:23:38:a4:be", cmd_ret);
         esp_console_run("csi -l 384 -m a8:03:2a:e1:11:b5", cmd_ret);
-        esp_console_run("ping 192.168.4.1 -c 1000 -i 0.01", cmd_ret);
+        esp_console_run("ping 192.168.4.1 -c 2500 -i 0.001", cmd_ret);
     }else if(step == 2) {
         esp_console_run("csi -l 384 -m a8:03:2a:e1:11:bc", cmd_ret);
         esp_console_run("ping 192.168.4.2 -c 9 -i 0.001", cmd_ret);

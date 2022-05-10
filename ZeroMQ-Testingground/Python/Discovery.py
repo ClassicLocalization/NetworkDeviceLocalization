@@ -96,32 +96,31 @@ def start_protocol():
         time.sleep(TIME_DELAY)
 
 def get_single_csi(ip, iterations):
-    PORT = 5000
-    path = r"C:\Users\Superadmin\Desktop\Bachelorarbeit\ZeroMQ-Testingground\Python\relevantData_diffRoom.csv"
+    PORT = 50000
+    path = r"C:\Users\alex_\Desktop\Bachelorarbeit\NetworkDeviceLocalization\ZeroMQ-Testingground\Python\csi_data_walls_steel.csv"
 
     s = socket(AF_INET, SOCK_DGRAM) #create UDP socket
     s.bind(('', PORT))
 
-    some_data = "1 .4"
+    some_data = "1 .42"
+    s.sendto(some_data.encode('utf-8'), (ip, PORT))
+    print("sent service announcement")
     for i in range(iterations):
-        s.sendto(some_data.encode ('utf-8'), (ip, PORT))
-        print ("sent service announcement")
         data, addr = s.recvfrom(1024) #wait for a packet
         print("got service announcement from", data)
-        parsed_content = "2,5" + data.decode("utf-8")
+        parsed_content = "18" + data.decode("utf-8")
 
         with open (path, 'a', newline='', encoding='utf-8') as f:
             # create the csv writer
             writer = csv.writer (f)
             # write a row to the csv file
             writer.writerow ([parsed_content])
-        time.sleep(10)
 
 
 def main():
     # start_session(5)
     # start_protocol()
-    get_single_csi ("192.168.178.58", 25)
+    get_single_csi ("192.168.4.2", 100)
 
 
 if __name__ == "__main__":
