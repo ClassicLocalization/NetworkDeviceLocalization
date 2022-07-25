@@ -1,0 +1,13 @@
+{
+    "files.associations": {
+        "cmd_system.h": "c",
+        "random": "c",
+        "xstring": "c",
+        "esp_console.h": "c",
+        "algorithm": "cpp",
+        "chrono": "cpp",
+        "limits": "cpp",
+        "utility": "cpp",
+        "esp_radar.h": "c"
+    }
+}
